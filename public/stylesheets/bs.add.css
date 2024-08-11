@@ -1,0 +1,363 @@
+/*	bs.add.css
+	Additional custom CSS to use along-side BS5's css kit
+	
+	8.10.23 Blaine Harper, Programmer, IHCC
+*/
+/* Page building */
+:root {
+	--poh-line: #533;
+    --poh-primary: #782F40;
+	--poh-primary-filter: invert(22%) sepia(16%) saturate(3004%) hue-rotate(300deg) brightness(91%) contrast(88%);
+	--poh-secondary: #FFA400;
+	--poh-secondary-filter: invert(56%) sepia(98%) saturate(911%) hue-rotate(359deg) brightness(103%) contrast(106%);
+	--poh-dark-grey: #776E64;	
+	--poh-dark-grey-filter: invert(44%) sepia(2%) saturate(2281%) hue-rotate(351deg) brightness(97%) contrast(88%);
+	--poh-light-grey: #f1f1f1;	
+	--poh-light-grey-filter: invert(99%) sepia(1%) saturate(522%) hue-rotate(227deg) brightness(118%) contrast(89%);
+	--poh-dark-gray: #776E64;
+	--poh-dark-gray-filter: invert(44%) sepia(2%) saturate(2281%) hue-rotate(351deg) brightness(97%) contrast(88%);
+	--poh-light-gray: #f1f1f1;	
+	--poh-light-gray-filter: invert(99%) sepia(1%) saturate(522%) hue-rotate(227deg) brightness(118%) contrast(89%);
+	--poh-sand: #FDF5E6;
+	--poh-primary-rgb: 120,47,64;
+	--poh-secondary-rgb: 255,164,0;
+	--poh-dark-grey-rgb: 119,110,100;
+	--poh-light-grey-rgb: 241,241,241;
+	--poh-dark-gray-rgb: 119,110,100;
+	--poh-light-gray-rgb: 241,241,241;
+	--poh-sand-rgb: 253,254,230;
+	--bs-primary-rgb: var(--poh-primary-rgb);
+	--bs-secondary-rgb: var(--poh-secondary-rgb);
+	--bs-emphasis-color-rgb: var(--bs-secondary-rgb);
+	--bs-body-bg: var(--poh-light-gray);
+	--bs-modal-bg: var(--poh-light-gray);
+}
+
+hr {
+	color: var(--poh-line);
+}
+
+.table {
+	--bs-table-color: #000;
+	--bs-table-hover-color: #000;
+}
+
+input, select, textarea {
+	color: #533;
+}
+
+.form-control input,
+.form-control select,
+.form-control textarea {
+	color: #333;
+	background-color: #fff;
+	border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.form-control {
+	color: #333 !important;
+	border-radius: 0.375rem;
+	font-size: 1rem;
+		font-weight: 300;
+}
+
+.navbar {
+	--bs-navbar-color: rgba(var(--poh-light-grey-rgb), 0.65);
+	--bs-navbar-hover-color: rgba(var(--bs-emphasis-color-rgb), 0.8);
+	--bs-navbar-disabled-color: rgba(var(--poh-light-grey-rgb), 0.3);
+	--bs-navbar-active-color: rgba(var(--bs-emphasis-color-rgb), 1);
+	--bs-navbar-brand-color: rgba(var(--poh-light-grey-rgb), 1);
+	--bs-navbar-brand-hover-color: rgba(var(--bs-emphasis-color-rgb), 1);
+	--bs-navbar-toggler-border-color: rgba(var(--poh-light-grey-rgb), 0.15);
+	--bs-navbar-brand-padding-y: 0;
+}
+
+.modal {
+	--bs-modal-bg: var(--bs-body-bg);
+}
+
+.modal-content {
+	color: var(--poh-line);
+}
+
+.dropdown-menu {
+	--bs-dropdown-link-active-bg: #fff;
+	box-shadow: var(--bs-box-shadow-lg) !important;
+}
+
+.dropdown-item {
+	font-weight: 325;
+	color: #444 !important;
+}
+
+.dropdown-item:hover {
+	color:var(--poh-secondary)!important;	
+}
+
+
+.btn-close-primary {
+	filter: var(--poh-primary-filter);
+	top:1rem;
+	right:1rem;
+	position:absolute;
+}
+
+.btn-close-secondary {
+	filter: var(--poh-secondary-filter);
+	top:1rem;
+	right:1rem;
+	position:absolute;
+}
+
+.btn-close-dark-grey, .btn-close-dark-gray {
+	filter: var(--poh-dark-gray-filter);
+	top:1rem;
+	right:1rem;
+	position:absolute;
+}
+
+.btn-close-light-grey, .btn-close-light-gray {
+	filter: var(--poh-light-gray-filter);
+	top:1rem;
+	right:1rem;
+	position:absolute;
+}
+
+a {
+    --bs-link-color-rgb: var(--poh-primary-rgb);
+}
+
+a:hover {
+    --bs-link-color-rgb: var(--poh-secondary-rgb);
+}
+
+body {
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-image: linear-gradient(to bottom, rgb(var(--poh-sand-rgb)), rgb(var(--poh-primary-rgb)))
+}
+
+body,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'Gotham Narrow', sans-serif;
+	font-weight: 300;
+}
+
+th,
+h1 {
+	font-family: 'Gotham Narrow', sans-serif;
+	font-weight: 350;
+}
+
+.sticky-header {
+	position: fixed;
+	top: 0;
+	width: 100%
+}
+
+.sticky-footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
+.scroll-x {
+	overflow-x: auto;
+}
+
+/* Form building */
+input,
+select,
+textarea {
+	background-color: white !important;
+}
+
+input:read-only,
+select:disabled,
+textarea:read-only {
+	background-color: khaki !important;
+}
+
+textarea {
+	resize: none;
+}
+
+.poh-table-link {
+	cursor: pointer;
+}
+	
+.poh-center {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.poh-left-bar {
+	border-left: 6px solid #ccc!important;
+}
+
+.disabled {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+/* dataTables.js */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_length select {
+	background-color: white !important;
+}
+
+.dt-button {
+	background-color: white !important;
+	}
+
+.dataTables_length {
+	margin: .75rem;
+}
+
+.dataTables_paginate {
+	margin: .25rem;
+}
+
+.current {
+	background-color: white !important;
+	}
+
+.dropdown-small {
+	font-size: .85rem;
+	padding: 0.1rem 1.5rem !important;
+}
+
+.dropdown-header {
+	padding: 0.1rem var(--bs-dropdown-item-padding-x) !important;
+}
+
+/* Responsive display */
+@media only screen and (min-width: 992px) {
+	.hide-on-shrink {
+		display: block;
+	}
+
+	.poh-container-form {
+		max-width:50%;
+	}
+	
+	.poh-container {
+		max-width:75%;
+	}
+
+	.navbar {
+		padding: .5rem var(--bs-navbar-padding-x);
+	}
+
+	.nav-link {
+		color:var(--poh-light-grey)!important;	
+		padding: 0 var(--bs-nav-link-padding-x);
+	}
+}
+
+@media only screen and (max-width: 992px){
+	.poh-navbar .btn {
+		font-size:.75rem;
+	}
+
+		.clear-border-on-shrink {}
+
+	.text-center-on-shrink {
+		text-align: center !important;
+	}
+	
+	.text-start-on-shrink {
+		text-align: start !important;
+	}
+	
+	.text-end-on-shrink {
+		text-align: end !important;
+	}
+
+	.hide-on-shrink {
+		display: none;
+	}
+
+	.navbar {
+		padding: .25rem var(--bs-navbar-padding-x);
+	}
+
+	.nav-link {
+		padding: var(--bs-navbar-padding-y) var(--bs-nav-link-padding-x);
+	}
+}
+
+@media print {
+	.pagebreak {
+			page-break-before: always;
+		}
+	
+		/* page-break-after works, as well */
+}
+
+/* Color Schemes */
+
+.nav-link:hover {
+	color:var(--poh-secondary)!important;	
+}
+
+.nav-link {
+	color:var(--poh-light-grey)!important;	
+}
+
+td:hover {
+	color:var(--poh-secondary)!important;	
+}
+
+.btn:hover {
+	color:var(--poh-secondary)!important;	
+}
+
+.poh-bg-primary {
+	--bs-bg-opacity: 1;
+	background-color: rgba(var(--poh-primary-rgb),var(--bs-bg-opacity))!important
+}
+
+.poh-bg-secondary {
+	--bs-bg-opacity: 1;
+	background-color: rgba(var(--poh-secondary-rbg),var(--bs-bg-opacity))!important
+}
+
+.poh-primary, .poh-hover-primary:hover {
+	color:#fff!important;
+	background-color:rgb(var(--poh-primary-rgb))!important;
+}
+
+.poh-secondary, .poh-hover-secondary:hover {
+	color:#333!important;
+	background-color:rgb(var(--poh-secondary-rgb))!important;
+}
+
+.poh-maroon, .poh-hover-maroon:hover {
+	color:#fff!important;
+	background-color:rgb(var(--poh-primary-rgb))!important;
+}
+
+.poh-sand, .poh-hover-sand:hover {
+	color:#333!important;
+	background-color:rgb(var(--poh-sand-rgb))!important;
+}
+
+.poh-gold, .poh-hover-gold:hover {
+	color:#333!important;
+	background-color:rgb(var(--poh-secondary-rgb))!important;
+}
+
+.poh-dark-grey, .poh-hover-dark-grey:hover, .poh-dark-gray, .poh-hover-dark-gray:hover {
+	color:#fff!important;
+	background-color:rgb(var(--poh-dark-grey-rgb))!important;
+}
+
+.poh-light-grey, .poh-hover-light-grey:hover, .poh-light-gray, .poh-hover-light-gray:hover {
+	color:#333!important;
+	background-color:rgb(var(--poh-light-grey-rgb))!important;
+}

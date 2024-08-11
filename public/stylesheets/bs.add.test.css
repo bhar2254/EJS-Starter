@@ -1,0 +1,13 @@
+/*	bs.add.test.css
+	Additional custom CSS to use along-side BS5's css kit'
+
+	Used for the test environment
+	
+	11.16.23 Blaine Harper, Programmer, IHCC
+*/
+:root {
+    --poh-primary: #01504a;
+	--poh-primary-rgb: 0,80,80;
+	--poh-secondary: #FFC600;
+	--poh-secondary-rgb: 255,198,0;
+}

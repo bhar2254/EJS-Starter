@@ -1,0 +1,12 @@
+# .gitignore
+
+# Ignore Yarn
+.yarn/*
+.yarn
+
+*.code-workspace
+
+.env
+.env.dev
+
+node_modules

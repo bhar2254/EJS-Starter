@@ -1,0 +1,210 @@
+/*	app.js
+	EJS-Starter Site, https://ejs-starter.blaineharper.com
+	by Blaine Harper
+*/	
+
+//	required packages
+const express = require('express')
+const session = require('express-session')
+const { auth } = require('express-openid-connect');
+const path = require('path')
+const cors = require('cors')
+const logger = require('morgan')
+const cluster = require('cluster')
+const process = require('node:process')
+const cookieParser = require('cookie-parser')
+const { Page } = require('./routes/util/DOM')
+const { applyCSSTheme } = require('./routes/util/themes')
+require('dotenv').config()
+require('./env')
+
+//	setting local env vars
+const DEBUG = process.env.DEBUG || false
+const PORT = process.env.PORT || 3000
+const APP_DISABLED = false
+const config = {
+	authRequired: false,
+	auth0Logout: true,
+	secret: process.env.EXPRESS_SESSION_SECRET,
+	baseURL: `https://${process.env.URI}`,
+	clientID: process.env.CLIENT_ID,
+	issuerBaseURL: process.env.ISSUER_URL
+}
+
+//	start app
+var app = express()
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config))
+
+//	view engine setup
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
+
+//	express environment setup
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(cors(
+	{credentials: true},
+))
+
+//	using express-session middleware for persistent user session. Be sure to
+//	familiarize yourself with available options. Visit: https://www.npmjs.com/package/express-session
+const cookie_timeout = 360 * 2500
+app.use(session({
+    secret: process.env.EXPRESS_SESSION_SECRET,
+	resave: false,
+	saveUninitialized: true,
+	cookie: { secure: false, maxAge: cookie_timeout }
+}))
+
+app.use('/js', express.static(path.join(__dirname + 'node_modules')))
+app.use(express.static(path.join(__dirname, 'node_modules')))
+
+const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://bhar2254.github.io//src/css/ltc/bs.add.css"/>
+<link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
+
+<link rel="icon" type="image/x-icon" href="https://blaineharper.com/assets/favicon.ico">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>`
+
+const footer = `</main>
+	<footer id="mainFooter" class="shadow-lg p-2 text-center bh-light-grey mx-auto sticky-footer">
+		<span id="footerText">2024 © BlaineHarper.com</span>
+	</footer>
+	<button class='btn rounded-circle'onclick="topFunction()" id="topButton" title="Go to top">Top</button>
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.7.0.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+	<script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.js"></script>
+
+	<script src="https://kit.fontawesome.com/5496aaa581.js" crossorigin="anonymous"></script>
+	<script>
+		// Get the button
+		let buttonToTop = document.getElementById("topButton")
+
+		// When the user scrolls down 20px from the top of the document, show the button
+		window.onscroll = function(){scrollFunction()}
+
+		function scrollFunction(){
+			if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20){
+				buttonToTop.style.display = "block"
+			} else {
+				buttonToTop.style.display = "none"
+			}
+		}
+
+		// When the user clicks on the button, scroll to the top of the document
+		function topFunction(){
+			document.body.scrollTop = 0
+			document.documentElement.scrollTop = 0
+		}
+		
+		window.addEventListener("load", (event) => {
+			$('.toast').toast()
+		})
+	</script>
+</body>
+</html>`
+
+let pageDefaults = {
+	header: {
+		dark: true,
+		append: `${headerLinks}
+		${applyCSSTheme('003B6F')}`
+	},
+	siteTitle: `EJS Starter`,
+	brand: `EJS Starter`,
+	footer: footer
+}
+
+app.use(function(req, res, next) {
+	pageDefaults.navbar = [{
+		text: 'About',
+		links: [{
+			text: 'Developer',
+			link: '/about/developer'
+		},{
+			text: 'Other Projects',
+			link: '/about/projects'
+		}],
+	}]
+	const isAuth = req.oidc.isAuthenticated()
+
+	if(isAuth){
+		pageDefaults.navbar = pageDefaults.navbar.concat([{
+			text: 'My Profile',
+			link: '/users/me'
+		},{
+			text: 'Logout',
+			link: '/logout'
+		}])
+	}
+
+	if(!isAuth){
+		pageDefaults.navbar.push({
+			text: 'Log In',
+			link: '/login'
+		})	
+	}
+
+	req.session.pageDefaults = pageDefaults
+	next()
+})
+
+//	set an endpoint for the root directory and main page routing
+if(!APP_DISABLED){
+	// app.use(loadSQLEnvironment)
+	app.use(`/`,require(`./routes/index`))
+	app.use(`/users`,require(`./routes/users`))
+	app.use(`/about`,require(`./routes/about`))
+}
+
+if(APP_DISABLED)
+	app.use(`*`,require(`./routes/app_disabled`))
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next){
+	const page = new Page({
+		...req.session.pageDefaults,
+		pageTitle: '404 Not Found',
+		body: '<div class="text-center py-3 my-5"><strong>404</strong> Page not found!</div>'	
+	})
+	res.render('pages/blank', { content: page.render() })
+})
+
+// error handler
+app.use(function(err, req, res, next){
+	// set locals, only providing error in development
+	res.locals.message = err.message
+	res.locals.error = req.app.get('env') === 'development' ? err : {}
+
+	// render the error page
+	res.status(err.status || 500)
+	res.render('base/error')
+})
+
+//	app.js relaunch
+if (cluster.isPrimary){
+//	fork the app worker
+	console.log(`${consoleColors.Bright}(${process.pid}) is running on port ${PORT}${consoleColors.Reset}`)
+	if(DEBUG){console.log(`${consoleColors.Dim}${process.pid}: Debugging is active${consoleColors.Reset}`)}
+	worker = cluster.fork()
+
+//	fork on exit to restart application
+	cluster.on('exit', function(worker, code, signal){
+		cluster.fork()
+	})
+} else {
+//	start the app listening on port from .env
+	app.listen(PORT)
+}
+
+module.exports = app

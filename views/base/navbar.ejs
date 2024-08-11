@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--	navbar.ejs
+
+	For BlaineHarper.com
+	ExpressJS-Bootstrap-Seed, https://ebs.blaineharper.com/
+	by Blaine Harper
+
+	{ meta: { site_title, page_title, url } }
+	 
+	PURPOSE: 
+-->
+<% uri = meta.url %>
+<nav class="navbar navbar-expand-lg bg-plp-black-trans sticky-top shadow-lg">
+	<div class="container-fluid">
+		<button class="my-1 navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<a style="margin-left:10%; position:absolute;" class="navbar-brand hide-on-shrink" href="/home"><%- env.title %></a>
+			<ul class="navbar-nav mx-auto">
+				<li class="nav-item dropdown">	
+					<a class="nav-link dropdown-toggle <% if(env.loc.substring(1,6) == "about"){ %> active <% } %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					About Us</a>
+					<ul class="dropdown-menu">
+						<li><a class="disabled dropdown-item <% if(env.loc == "/about/history"){ %> active <% } %>" href="/about/history">Our History</a></li>
+						<li><a class="disabled dropdown-item <% if(env.loc.substring(6,17) == "/craftsmen"){ %> active <% } %>" href="/about/craftsmen">Our Craftsmen</a></li>
+						<li><a class="dropdown-item <% if(env.loc.substring(6,17) == "/faq"){ %> active <% } %>" href="/about/faq">Your Questions</a></li>
+					</ul>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link <% if(env.loc.substring(0,4) == "/eve"){ %> active <% } %>" href="/events">Events</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav navbar-right">
+			</ul>
+		</div>
+	</div>
+</nav>
+<main class="bg-primary-gradient">
