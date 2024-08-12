@@ -44,7 +44,7 @@ router.get('/',
 router.get('/parallax',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
-		const parallax = new Parallax({ link: "https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png?w=2048&format=webp"})
+		const parallax = new Parallax({ height: 25, link: "https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png?w=2048&format=webp"})
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Parallax',
