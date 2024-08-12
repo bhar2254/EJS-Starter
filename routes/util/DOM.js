@@ -357,6 +357,20 @@ class Modal extends HtmlElement {
     }
 }
 
+class Parallax extends HtmlElement {
+    constructor(args) {
+        super(args)
+        this.height = args.height || '15'
+        this.link = args.link || `${process.env.URI}/favicon.png`
+    }
+    get content() {
+        return `<div class="parallax-canvas">
+            <div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');">
+            </div>
+        </div>`
+    }
+}
+
 class Table extends HtmlElement {
     constructor(args) {
         super(args)
@@ -523,6 +537,7 @@ module.exports = {
     FormInput: FormInput,
     Form: Form,
     Modal: Modal,
+    Parallax: Parallax,
     Table: Table,
     Page: Page,
 }
