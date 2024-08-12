@@ -363,6 +363,9 @@ class Parallax extends HtmlElement {
         this.height = args.height || '15'
         this.link = args.link || `${process.env.URI}/favicon.png`
     }
+    set content(content) {
+        this._content = content
+    }
     get content() {
         return `<div class="parallax-canvas">
             <div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');">

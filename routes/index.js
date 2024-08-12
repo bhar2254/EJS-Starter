@@ -44,20 +44,38 @@ router.get('/',
 router.get('/parallax',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
-		const parallax = new Parallax({ link="https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png?w=2048&format=webp"})
+		const parallax = new Parallax({ link: "https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png?w=2048&format=webp"})
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Parallax',
 			body: `<div class="text-body container py-5">
-			${parallax.render()}
 			<div class="row">
 				<div class="col">
 					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
 						<ol class="breadcrumb mb-0">
-							<li class="breadcrumb-item active" aria-current="page">Home</li>
+							<li class="breadcrumb-item" aria-current="page"><a href="/">Home</a></li>
+							<li class="breadcrumb-item active" aria-current="page">Parallax Demo</li>
 						</ol>
 					</nav>
 				</div>
+			</div>
+			<div class="text-center text-body container py-5">
+				Welcome to my newest version of my ExpressJS Starter site!
+			</div>
+			<div class="rounded-1">
+				${parallax.render()}
+			</div>
+			<div class="text-center text-body container py-5">
+				Welcome to my newest version of my ExpressJS Starter site!
+			</div>
+			<div class="rounded-1">
+				${parallax.render()}
+			</div>
+			<div class="text-center text-body container py-5">
+				Welcome to my newest version of my ExpressJS Starter site!
+			</div>
+			<div class="rounded-1">
+				${parallax.render()}
 			</div>
 			<div class="text-center text-body container py-5">
 				Welcome to my newest version of my ExpressJS Starter site!
