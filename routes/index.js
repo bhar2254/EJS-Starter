@@ -62,21 +62,15 @@ router.get('/parallax',
 			<div class="text-center text-body container py-5">
 				Welcome to my newest version of my ExpressJS Starter site!
 			</div>
-			<div class="rounded-1">
-				${parallax.render()}
-			</div>
+			${parallax.render({link: `https://science.nasa.gov/wp-content/uploads/2023/09/stsci-01g8jzq6gwxhex15pyy60wdrsk-2.png?w=2048&format=webp`})}
 			<div class="text-center text-body container py-5">
 				Welcome to my newest version of my ExpressJS Starter site!
 			</div>
-			<div class="rounded-1">
-				${parallax.render()}
-			</div>
+			${parallax.render({ link: `https://science.nasa.gov/wp-content/uploads/2023/09/ssc2006-02a-0.jpg?w=2048&format=webp` })}
 			<div class="text-center text-body container py-5">
 				Welcome to my newest version of my ExpressJS Starter site!
 			</div>
-			<div class="rounded-1">
-				${parallax.render()}
-			</div>
+			${parallax.render({ link: `https://science.nasa.gov/wp-content/uploads/2023/09/cena-lic-lp-nature-cropped.jpg?w=2048&format=webp` })}
 			<div class="text-center text-body container py-5">
 				Welcome to my newest version of my ExpressJS Starter site!
 			</div>
