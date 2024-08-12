@@ -360,6 +360,7 @@ class Modal extends HtmlElement {
 class Parallax extends HtmlElement {
     constructor(args) {
         super(args)
+        this.classes = ['parallax-canvas']
         this.height = args.height || '15'
         this.link = args.link || `${process.env.URI}/favicon.png`
     }
@@ -367,10 +368,12 @@ class Parallax extends HtmlElement {
         this._content = content
     }
     get content() {
-        return `<div class="parallax-canvas">
-            <div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');">
-            </div>
-        </div>`
+        return `<div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');"></div>`
+    }
+    render(args) {
+        if(args.link)
+            this.link = args.link
+        return `<${this.tag}${this.attributes} class='${this.classes}'>${this.content}</${this.tag}>`
     }
 }
 
