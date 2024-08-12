@@ -7,6 +7,7 @@
 
 //	variables necessary for express
 const { Page, Parallax } = require('./util/DOM')
+const fetch = require('../fetch')
 const express = require('express')
 const router = express.Router()
 
@@ -43,6 +44,9 @@ router.get('/',
 /* GET home page. */
 router.get('/parallax',
 	async function (req, res, next) {
+		const apod = await fetch('https://api.nasa.gov/planetary/apod?api_key=kpJvVzx1eJ1fD9gyYDjB6RnBS5OpsgcifyYbBPGT')
+		const response = await apod.response
+		console.log(response)
 		const pageDefaults = req.session.pageDefaults
 		const parallax = new Parallax({ height: 25, link: "https://science.nasa.gov/wp-content/uploads/2023/09/web-first-images-release.png?w=2048&format=webp"})
 		const page = new Page({
@@ -59,6 +63,11 @@ router.get('/parallax',
 					</nav>
 				</div>
 			</div>
+			<div class="text-center text-body container py-5">
+				<h1>Webb Captures the Cartwheel Galaxy</h1>
+				<p>NASA’s James Webb Space Telescope has peered into the chaos of the Cartwheel Galaxy, revealing new details about star formation and the galaxy’s central black hole. Webb’s powerful infrared gaze produced this detailed image of the Cartwheel and two smaller companion galaxies against a backdrop of many other galaxies. This image provides a new view of how the Cartwheel Galaxy has changed over billions of years.</p>
+			</div>
+			${parallax.render({ link: `https://science.nasa.gov/wp-content/uploads/2023/09/stsci-01g8jzq6gwxhex15pyy60wdrsk-2.png?w=2048&format=webp` })}
 			<div class="text-center text-body container py-5">
 				<h1>Webb Captures the Cartwheel Galaxy</h1>
 				<p>NASA’s James Webb Space Telescope has peered into the chaos of the Cartwheel Galaxy, revealing new details about star formation and the galaxy’s central black hole. Webb’s powerful infrared gaze produced this detailed image of the Cartwheel and two smaller companion galaxies against a backdrop of many other galaxies. This image provides a new view of how the Cartwheel Galaxy has changed over billions of years.</p>
