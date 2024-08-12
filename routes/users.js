@@ -13,11 +13,11 @@ const { SQLObject } = require('./util/sql')
 const { requiresAuth } = require('express-openid-connect');
 
 const nextLevelExp = (exp) => {
-	return (calculateLevel(exp) + 1) ** 2
+	return Math.round((calculateLevel(exp) + 1) ** 2)
 }
 
 const calculateLevel = (exp) => {
-	return (Math.sqrt(exp) || 0) + 1
+	return Math.round((Math.sqrt(exp) || 0) + 1)
 }
 
 //  check if user has logged in before
@@ -42,7 +42,9 @@ router.get('/me',
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'My Profile',
-			body: `<div class="text-body container py-5">
+			body: `
+        <div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+      <div class="text-body container p-5">
     <div class="row">
       <div class="col">
         <nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
@@ -93,6 +95,7 @@ router.get('/me',
         </div>
       </div>
     </div>
+  </div>
   </div>`
 		})
 		res.render('pages/blank', { content: page.render() })

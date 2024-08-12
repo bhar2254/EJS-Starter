@@ -24,12 +24,13 @@ class Defaults {
 class HtmlElement extends Defaults {
     constructor(args) {
         super(args)
-        this.tag = args.tag || ''
-        this.attributes = args.attributes || {}
-        this.classes = args.classes || []
-        this.content = args.content || ''
-        this.parent = args.parent || {}
-        this.children = args.children || []
+        const _args = {...args}
+        this.tag = _args.tag || ''
+        this.attributes = _args.attributes || {}
+        this.classes = _args.classes || []
+        this.content = _args.content || ''
+        this.parent = _args.parent || {}
+        this.children = _args.children || []
     }
     set attributes(attr) {
         this._attributes = attr
@@ -90,6 +91,28 @@ class HtmlElement extends Defaults {
     }
     render() {
         return `<${this.tag}${this.attributes} class='${this.classes}'>${this.content}</${this.tag}>`
+    }
+}
+
+class Breadcrumb extends HtmlElement { 
+    constructor(args) { 
+        super(args)
+        this.classes = 'row'
+        const _links = args.links || {}
+        const links = []
+        Object.keys(args.links).forEach((each, i) => {
+            const value = Object.keys(_links).length - 1 == i ? 
+                `<li class="breadcrumb-item active" aria-current="page">${each}</li>` : 
+                `<li class="breadcrumb-item" aria-current="page"><a href="${_links[each]}">${each}</a></li>`
+            links.push(value)
+        })
+		this.content = `<div class="col">
+					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3">
+						<ol class="breadcrumb mb-0">
+							${links.join('')}
+						</ol>
+					</nav>
+				</div>`
     }
 }
 
@@ -360,9 +383,10 @@ class Modal extends HtmlElement {
 class Parallax extends HtmlElement {
     constructor(args) {
         super(args)
+        const _args = {...args}
         this.classes = ['parallax-canvas']
-        this.height = args.height || '15'
-        this.link = args.link || `${process.env.URI}/favicon.png`
+        this.height = _args.height || '15'
+        this.link = _args.link || `${process.env.URI}/favicon.png`
     }
     set content(content) {
         this._content = content
@@ -371,8 +395,12 @@ class Parallax extends HtmlElement {
         return `<div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');"></div>`
     }
     render(args) {
-        if(args.link)
-            this.link = args.link
+        const _args = {...args}
+        if(_args.link)
+            this.link = _args.link
+        if(_args.height)
+            this.height = _args.height
+
         return `<${this.tag}${this.attributes} class='${this.classes}'>${this.content}</${this.tag}>`
     }
 }
@@ -445,12 +473,11 @@ class Page extends Defaults {
         this.tag = 'html'
     }
     set body(content) {
+    //  <div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>'
         const body = `
     <body>
         <div class='main'>
-            <div class='mx-auto px-4 my-5 py-3 bh-dark-grey shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-                ${content}
-            </div>
+            ${content}
         </div>`
         this.content = body
     }
@@ -539,6 +566,7 @@ class Page extends Defaults {
 module.exports = {
     Defaults: Defaults,
     HtmlElement: HtmlElement,
+    Breadcrumb: Breadcrumb,
     Card: Card,
     FormInput: FormInput,
     Form: Form,

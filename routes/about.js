@@ -16,7 +16,8 @@ router.get('/',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'About',
-			body: `<div class="text-body container py-5">
+			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+		<div class="text-body container p-5">
 			<div class="row">
 				<div class="col">
 					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
@@ -27,9 +28,10 @@ router.get('/',
 					</nav>
 				</div>
 			</div>
-			<div class="text-center text-body container py-5">
+			<div class="text-center text-body container p-5">
 				EJS Starter is a template application and demo project for creating new ExpressJS applications with ease. Built-in with scripts for elimiating the worldload as well as EJS teampltes for quick page generation. Create a copy of this project and get started <a href="https://github.com/bhar2254/EJS-Starter">today</a>!
 			</div>
+		</div>
 		</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
@@ -41,7 +43,8 @@ router.get('/developer',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Developer',
-			body: `<div class="text-body container py-5">
+			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+		<div class="text-body container p-5">
 			<div class="row">
 				<div class="col">
 					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
@@ -53,9 +56,10 @@ router.get('/developer',
 					</nav>
 				</div>
 			</div>
-			<div class="text-center text-body container py-5">
+			<div class="text-center text-body container p-5">
 				Hi! My name's Blaine. I make websites and other JavaScript applications. If you're interested in creating your own JavaScript projects like this one, check out my <a href='https://github.com/bhar2254'>GitHub</a> or check out my site <a href='https://blaineharper.com'>BlaineHarper.com</a> for (possibly?) up to date details.
 			</div>
+		</div>
 		</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
@@ -67,7 +71,8 @@ router.get('/projects',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Projects',
-			body: `<div class="text-body container py-5">
+			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+		<div class="text-body container p-5">
 			<div class="row">
 				<div class="col">
 					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
@@ -79,9 +84,10 @@ router.get('/projects',
 					</nav>
 				</div>
 			</div>
-			<div class="text-center text-body container py-5">
+			<div class="text-center text-body container p-5">
 				If you'd like to view my other projects, check out my <a href='https://github.com/bhar2254'>GitHub</a>!
 			</div>
+		</div>
 		</div>`
 		})
 		res.render('pages/blank', { content: page.render() })

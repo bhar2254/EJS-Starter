@@ -131,6 +131,12 @@ app.use(function(req, res, next) {
 			text: 'Other Projects',
 			link: '/about/projects'
 		}],
+	},{
+		text: 'Examples',
+		links: [{
+			text: 'Parallax',
+			link: '/examples/parallax'
+		}],
 	}]
 	const isAuth = req.oidc.isAuthenticated()
 
@@ -160,6 +166,7 @@ if(!APP_DISABLED){
 	// app.use(loadSQLEnvironment)
 	app.use(`/`,require(`./routes/index`))
 	app.use(`/users`,require(`./routes/users`))
+	app.use(`/examples`,require(`./routes/examples`))
 	app.use(`/about`,require(`./routes/about`))
 }
 
