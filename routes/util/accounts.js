@@ -6,7 +6,6 @@
 */
 
 const crypto = require('crypto')
-const fetch = require('../../fetch')
 
 //	check if user is authenticated and redirect them to the login route
 const isAuthenticated = (req, res, next) => {

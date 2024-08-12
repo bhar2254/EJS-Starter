@@ -14,9 +14,9 @@ const cluster = require('cluster')
 const process = require('node:process')
 const cookieParser = require('cookie-parser')
 const { Page } = require('./routes/util/DOM')
+const { consoleColors } = require('./routes/util/harper')
 const { applyCSSTheme } = require('./routes/util/themes')
 require('dotenv').config()
-require('./env')
 
 //	setting local env vars
 const DEBUG = process.env.DEBUG || false
