@@ -53,12 +53,11 @@ app.use(cors(
 
 //	using express-session middleware for persistent user session. Be sure to
 //	familiarize yourself with available options. Visit: https://www.npmjs.com/package/express-session
-const cookie_timeout = 360 * 2500
 app.use(session({
     secret: process.env.EXPRESS_SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
-	cookie: { secure: false, maxAge: cookie_timeout }
+	cookie: { secure: false }
 }))
 
 const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"/>
