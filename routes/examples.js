@@ -34,19 +34,21 @@ router.get('/',
                 <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
                     <div class="p-4">
 			${breadcrumb.render()}
-			<div class="container p-4">
-                <div class="row">
-                    <div class="text-body text-center">
-				        Welcome to my newest version of my ExpressJS Starter site! Here you can browse some templates that I've made!
+                <div class="container p-4">
+                    <div class="row">
+                        <div class="text-body text-center">
+                            Welcome to my newest version of my ExpressJS Starter site! Here you can browse some templates that I've made!
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+                            <ul class="list-group text-center">
+                                ${Object.keys(pages).map(x => `<li class="list-group-item""><a href="/examples/${x}">${pages[x]}</a></li>`).join('')}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="row mt-5">
-                    <ul class="list-group text-center">
-                        ${Object.keys(pages).map(x => `<li class="list-group-item""><a href="/examples/${x}">${pages[x]}</a></li>`).join('')}
-                    </ul>
-                </div>
-			</div>
-		</div>`
+            </div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}
@@ -70,7 +72,7 @@ router.get('/typography',
 			${breadcrumb.render()}
 			<div class="container p-4">
                 <div cass="row">
-                    <h3 class="text-center">From the official Bootstrap cheatsheet found at <a href="https://getbootstrap.com/docs/5.0/examples/cheatsheet/">getbootstrap.com</a></h3>
+                    <p class="lead text-center">From the official Bootstrap cheatsheet found at <a href="https://getbootstrap.com/docs/5.0/examples/cheatsheet/">getbootstrap.com</a></p>
                 </div>
                 <div class="row">
                     <div>
@@ -165,7 +167,7 @@ router.get('/parallax',
             const title = `<div class="col-sm-4 col-xs-12">
                         <h1>${_args.title}</h1>
                     </div>`
-            return `<div class="text-center text-body container p-4">
+            return `<div class="text-center text-body container p-4 my-5">
 				<div class="row">
                     ${!_args.flipped ? title : ''}
                     <div class="col-sm-8 col-xs-12">

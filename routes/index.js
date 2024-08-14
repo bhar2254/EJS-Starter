@@ -28,7 +28,7 @@ router.get('/',
 			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
-			<div class="text-center text-body container p-4">
+			<div class="text-center text-body container p-4 my-5">
 				Welcome to my newest version of my ExpressJS Starter site!
 			</div>
 		</div>

@@ -69,7 +69,7 @@ const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/b
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>`
 
 const footer = `</main>
-	<footer id="mainFooter" class="shadow-lg p-2 text-center bh-light-grey mx-auto sticky-footer">
+	<footer id="mainFooter" class="shadow-lg p-2 text-center bg-glass mx-auto sticky-footer">
 		<span id="footerText">2024 © BlaineHarper.com</span>
 	</footer>
 	<button class='btn rounded-circle'onclick="topFunction()" id="topButton" title="Go to top">Top</button>
@@ -115,7 +115,24 @@ let pageDefaults = {
 	header: {
 		dark: true,
 		append: `${headerLinks}
-		${applyCSSTheme('003B6F')}`
+		${applyCSSTheme('003B6F')}
+		<style>
+		body {
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+
+			/* Full height */
+			height: 100%;
+
+			/* Center and scale the image nicely */
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: cover;
+
+			background-image: url('https://apod.nasa.gov/apod/image/2408/AuroraPerseids_Anders_1080.jpg');
+			font-family: 'Gotham Narrow', sans-serif;
+		}
+		</style>`
 	},
 	siteTitle: `EJS Starter`,
 	brand: `EJS Starter`,

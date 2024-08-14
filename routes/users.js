@@ -84,29 +84,29 @@ router.get('/me',
 			<div class="row g-4">
 				<div class="col-lg-4">
 					<div class="card bg-glass-secondary shadow-lg">
-					<div class="card-body text-center">
-						<img src="${currentUser.picture}" alt="avatar"
-						class="rounded-circle img-fluid" style="width: 150px;">
-						<br>
-						<a class="btn bh-primary mt-3" href="http://en.gravatar.com/emails/">Edit photo</a>
-						<h5 class="my-3">${currentUser.nickname}</h5>
-						<p class="mb-4">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
+						<div class="card-body text-center">
+							<img src="${currentUser.picture}" alt="avatar"
+							class="rounded-circle img-fluid" style="width: 150px;">
+							<br>
+							<a class="btn bh-primary mt-3" href="http://en.gravatar.com/emails/">Edit photo</a>
+							<h5 class="my-3">${currentUser.nickname}</h5>
+							<p class="mb-0">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-lg-8">
-				<form action="/" method="get">
-					<div class="card bg-glass-primary shadow-lg">
-					<div class="card-body">
-						${profileRows({
-							'Full Name': `<span id="name" class="editable">${currentUser.name}</span>`,
-							'Email': `<span id="picture" class="editable">${currentUser.email}</span> ${currentUser.email_verified ? '' : ' (not verified) '}`,
-							'Picture URL': `<span id="picture" class="editable">${currentUser.picture}</span>`,
-							'Authentication Method': `<span id="sub.method" class="editable">${subTypes[subSplit[0]]}</span>: <span id="sub.id" class="editable">${subSplit[1]}`,
-						})}
-					</div>
-					</div>
-				</form>
+				<div class="col-lg-8">
+					<form action="/" method="get">
+						<div class="card bg-glass-primary shadow-lg">
+							<div class="card-body">
+								${profileRows({
+									'Full Name': `<span id="name" class="editable">${currentUser.name}</span>`,
+									'Email': `<span id="picture" class="editable">${currentUser.email}</span> ${currentUser.email_verified ? '' : ' (not verified) '}`,
+									'Picture URL': `<span id="picture" class="editable">${currentUser.picture}</span>`,
+									'Authentication Method': `<span id="sub.method" class="editable">${subTypes[subSplit[0]]}</span>: <span id="sub.id" class="editable">${subSplit[1]}`,
+								})}
+							</div>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

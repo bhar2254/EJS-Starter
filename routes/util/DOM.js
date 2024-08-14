@@ -548,7 +548,7 @@ class Page extends Defaults {
                 generateDropdown(each)
         }
         return `
-            <nav class='navbar navbar-expand-lg text-end bg-primary sticky-top shadow-lg'>
+            <nav class='navbar navbar-expand-lg text-end bg-glass sticky-top shadow-lg'>
                 <div class='col-7 container-fluid'>
                 <button class='ms-auto bh-light-gray my-1 navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><i class='fa-solid fa-bars'></i></button>
                 <div class='collapse navbar-collapse' id='navbarSupportedContent'>
