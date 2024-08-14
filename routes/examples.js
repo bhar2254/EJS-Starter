@@ -20,15 +20,19 @@ router.get('/',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
         const breadcrumb = new Breadcrumb({
-            links: {
-                'Home': '/',
-                'Examples': null,
-            }
+            'Home': '/',
+            'Examples': null,
         })
+        const pages = {
+            'parallax': 'Parallax',
+            'typography': 'Typography'
+        }
 		const page = new Page({
 			...pageDefaults,
-			pageTitle: 'Home',
-			body: `<div class="text-body container p-5">
+			pageTitle: 'Examples',
+			body: `
+                <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
+                    <div class="p-5">
 			${breadcrumb.render()}
 			<div class="container p-5">
                 <div class="row">
@@ -38,8 +42,105 @@ router.get('/',
                 </div>
                 <div class="row mt-5">
                     <ul class="list-group text-center">
-                        <li class="list-group-item""><a href="/examples/parallax">Parallax</a></li>
+                        ${Object.keys(pages).map(x => `<li class="list-group-item""><a href="/examples/${x}">${pages[x]}</a></li>`).join('')}
                     </ul>
+                </div>
+			</div>
+		</div>`
+		})
+		res.render('pages/blank', { content: page.render() })
+	}
+)
+
+/* GET home page. */
+router.get('/typography',
+	async function (req, res, next) {
+		const pageDefaults = req.session.pageDefaults
+        const breadcrumb = new Breadcrumb({
+            'Home': '/',
+            'Examples': '/examples',
+            'Typography': null,
+        })
+		const page = new Page({
+			...pageDefaults,
+			pageTitle: 'Typography',
+			body: `
+                <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
+                    <div class="p-5">
+			${breadcrumb.render()}
+			<div class="container p-5">
+                <div cass="row">
+                    <h3 class="text-center">From the official Bootstrap cheatsheet found at <a href="https://getbootstrap.com/docs/5.0/examples/cheatsheet/">getbootstrap.com</a></h3>
+                </div>
+                <div class="row">
+                    <div>
+        <div class="bd-example">
+        <p class="display-1">Display 1</p>
+        <p class="display-2">Display 2</p>
+        <p class="display-3">Display 3</p>
+        <p class="display-4">Display 4</p>
+        <p class="display-5">Display 5</p>
+        <p class="display-6">Display 6</p>
+        </div>
+
+        <div class="bd-example">
+        <p class="h1">Heading 1</p>
+        <p class="h2">Heading 2</p>
+        <p class="h3">Heading 3</p>
+        <p class="h4">Heading 4</p>
+        <p class="h5">Heading 5</p>
+        <p class="h6">Heading 6</p>
+        </div>
+
+        <div class="bd-example">
+        <p class="lead">
+          This is a lead paragraph. It stands out from regular paragraphs.
+        </p>
+        </div>
+
+        <div class="bd-example">
+        <p>You can use the mark tag to <mark>highlight</mark> text.</p>
+        <p><del>This line of text is meant to be treated as deleted text.</del></p>
+        <p><s>This line of text is meant to be treated as no longer accurate.</s></p>
+        <p><ins>This line of text is meant to be treated as an addition to the document.</ins></p>
+        <p><u>This line of text will render as underlined.</u></p>
+        <p><small>This line of text is meant to be treated as fine print.</small></p>
+        <p><strong>This line rendered as bold text.</strong></p>
+        <p><em>This line rendered as italicized text.</em></p>
+        </div>
+
+        <div class="bd-example">
+        <blockquote class="blockquote">
+          <p>A well-known quote, contained in a blockquote element.</p>
+          <footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
+        </blockquote>
+        </div>
+
+        <div class="bd-example">
+        <ul class="list-unstyled">
+          <li>This is a list.</li>
+          <li>It appears completely unstyled.</li>
+          <li>Structurally, it's still a list.</li>
+          <li>However, this style only applies to immediate child elements.</li>
+          <li>Nested lists:
+            <ul>
+              <li>are unaffected by this style</li>
+              <li>will still show a bullet</li>
+              <li>and have appropriate left margin</li>
+            </ul>
+          </li>
+          <li>This may still come in handy in some situations.</li>
+        </ul>
+        </div>
+
+        <div class="bd-example">
+        <ul class="list-inline">
+          <li class="list-inline-item">This is a list item.</li>
+          <li class="list-inline-item">And another one.</li>
+          <li class="list-inline-item">But they're displayed inline.</li>
+        </ul>
+        </div>
+      </div>
                 </div>
 			</div>
 		</div>`
@@ -52,11 +153,9 @@ router.get('/',
 router.get('/parallax',
 	async function (req, res, next) {
         const breadcrumb = new Breadcrumb({
-            links: {
-                'Home': '/',
-                'Examples': '/examples',
-                'Parallax Demo': null,
-            }
+            'Home': '/',
+            'Examples': '/examples',
+            'Parallax': null,
         })
 		const apod = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
 		const pageDefaults = req.session.pageDefaults

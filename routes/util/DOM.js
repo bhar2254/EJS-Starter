@@ -94,14 +94,22 @@ class HtmlElement extends Defaults {
     }
 }
 
+class Button extends HtmlElement {
+    constructor(args){
+        super(args)
+        this.classes = ['btn','bh-primary']
+        this.tag = args.tag || 'button'
+    }
+}
+
 class Breadcrumb extends HtmlElement { 
     constructor(args) { 
         super(args)
-        this.classes = 'row'
-        const _links = args.links || {}
+        this.classes = ['row']
+        const _links = args || {}
         const links = []
-        Object.keys(args.links).forEach((each, i) => {
-            const value = Object.keys(_links).length - 1 == i ? 
+        Object.keys(_links).forEach( each => {
+            const value = _links[each] == null || typeof _links[each] === 'undefined' ? 
                 `<li class="breadcrumb-item active" aria-current="page">${each}</li>` : 
                 `<li class="breadcrumb-item" aria-current="page"><a href="${_links[each]}">${each}</a></li>`
             links.push(value)
@@ -473,7 +481,7 @@ class Page extends Defaults {
         this.tag = 'html'
     }
     set body(content) {
-    //  <div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>'
+    //  <div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>'
         const body = `
     <body>
         <div class='main'>

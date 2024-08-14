@@ -8,8 +8,7 @@
 //	variables necessary for express
 const express = require('express')
 const router = express.Router()
-const { Page } = require('./util/DOM')
-const { SQLObject } = require('./util/sql')
+const { Page, Breadcrumb } = require('./util/DOM')
 const { requiresAuth } = require('express-openid-connect');
 
 const nextLevelExp = (exp) => {
@@ -20,83 +19,78 @@ const calculateLevel = (exp) => {
 	return Math.round((Math.sqrt(exp) || 0) + 1)
 }
 
-//  check if user has logged in before
-const checkForAccount = async (req, res, next) => {
-	const user = new SQLObject({ table: 'users', email: req.oidc.user.email, primaryKey: 'email', ...req.oidc.user })
-	const data = await user.read()
-	if (data === 0)
-		user.create()
-	if (data !== 0)
-		user.update()
-	req.session.currentUser = user
-	next()
-}
-
 /* GET users page. */
 router.get('/me',
 	requiresAuth(),
-	checkForAccount,
 	async function (req, res) {
 		const currentUser = req.session.currentUser
+		const subTypes = {
+			'google-oauth2': 'Google',
+			'github': 'GitHub',
+		}
+		const subSplit = currentUser.sub.split('|')
+		const breadcrumb = new Breadcrumb({
+			'Home': '/',
+			'Users': null,
+			'Me': null
+		})
+		breadcrumb.addClass('mb-3')
+		const profileRows = (args) => {
+			const _args = {...args}
+			const response = []
+			Object.keys(_args).forEach(key => {
+				response.push(`
+						<div class="row">
+							<div class="col-sm-3">
+								<p class="mb-0">${key}</p>
+							</div>
+							<div class="col-sm-9">
+								<p class="mb-0"><span id="picture" class="editable">${_args[key]}</span></p>
+							</div>
+						</div>`)
+			})
+			return response.join('<hr>')
+		}
 		const pageDefaults = req.session.pageDefaults
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'My Profile',
 			body: `
-        <div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-      <div class="text-body container p-5">
-    <div class="row">
-      <div class="col">
-        <nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Users</li>
-            <li class="breadcrumb-item active" aria-current="page">Me</li>
-          </ol>
-        </nav>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-4">
-        <div class="card mb-4">
-          <div class="card-body text-center">
-            <img src="${currentUser.picture}" alt="avatar"
-              class="rounded-circle img-fluid" style="width: 150px;">
-            <br>
-            <a class="btn bh-primary mt-3" href="http://en.gravatar.com/emails/">Edit photo</a>
-            <h5 class="my-3">${currentUser.nickname}</h5>
-            <p class="mb-4">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
-            <div class="d-flex justify-content-center mb-2">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-8">
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-sm-3">
-                <p class="mb-0">Full Name</p>
-              </div>
-              <div class="col-sm-9">
-                <p class="mb-0">${currentUser.name}</p>
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <p class="mb-0">Email</p>
-              </div>
-              <div class="col-sm-9">
-                <p class="mb-0">${currentUser.email} ${currentUser.email_verified ? '' : ' (not verified) '}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>`
+<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+	<div class="text-body container p-5">
+	  	${breadcrumb.render()}
+		<div class="text-body">
+			<div class="row">
+				<div class="col-lg-4">
+					<div class="card mb-4">
+					<div class="card-body text-center">
+						<img src="${currentUser.picture}" alt="avatar"
+						class="rounded-circle img-fluid" style="width: 150px;">
+						<br>
+						<a class="btn bh-primary mt-3" href="http://en.gravatar.com/emails/">Edit photo</a>
+						<h5 class="my-3">${currentUser.nickname}</h5>
+						<p class="mb-4">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-8">
+				<form action="/" method="get">
+					<div class="card mb-4">
+					<div class="card-body">
+						${profileRows({
+							'Full Name': `<span id="name" class="editable">${currentUser.name}</span>`,
+							'Email': `<span id="picture" class="editable">${currentUser.email}</span> ${currentUser.email_verified ? '' : ' (not verified) '}`,
+							'Picture URL': `<span id="picture" class="editable">${currentUser.picture}</span>`,
+							'Authentication Method': `<span id="sub.method" class="editable">${subTypes[subSplit[0]]}</span>: <span id="sub.id" class="editable">${subSplit[1]}`,
+						})}
+					</div>
+					</div>
+				</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}

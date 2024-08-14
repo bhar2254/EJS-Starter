@@ -14,6 +14,7 @@ const cluster = require('cluster')
 const process = require('node:process')
 const cookieParser = require('cookie-parser')
 const { Page } = require('./routes/util/DOM')
+const { SQLObject } = require('./routes/util/sql')
 const { consoleColors } = require('./routes/util/harper')
 const { applyCSSTheme } = require('./routes/util/themes')
 require('dotenv').config()
@@ -121,7 +122,23 @@ let pageDefaults = {
 	footer: footer
 }
 
-app.use(function(req, res, next) {
+//  check if user has logged in before
+const checkForAccount = async (oidc) => {
+	const user = new SQLObject({ table: 'users', email: oidc.user.email, primaryKey: 'email', ...oidc.user })
+	const data = await user.read()
+	if (data === 0)
+		await user.create()
+	if (data !== 0)
+		await user.update()
+	return await user.read()
+}
+
+const examplePages = {
+	'parallax': 'Parallax',
+	'typography': 'Typography'
+}
+
+app.use(async function(req, res, next) {
 	pageDefaults.navbar = [{
 		text: 'About',
 		links: [{
@@ -133,15 +150,19 @@ app.use(function(req, res, next) {
 		}],
 	},{
 		text: 'Examples',
-		links: [{
-			text: 'Parallax',
-			link: '/examples/parallax'
-		}],
+		links: Object.keys(examplePages).map(x => { 
+			return { text: examplePages[x], link: `/examples/${x}` }
+		}),
 	}]
 	const isAuth = req.oidc.isAuthenticated()
-
 	if(isAuth){
+		if(!req.session.currentUser)
+			req.session.currentUser = await checkForAccount(req.oidc)
+
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
+			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
+			link: '/users/me'
+		},{
 			text: 'My Profile',
 			link: '/users/me'
 		},{
@@ -149,14 +170,12 @@ app.use(function(req, res, next) {
 			link: '/logout'
 		}])
 	}
-
 	if(!isAuth){
 		pageDefaults.navbar.push({
 			text: 'Log In',
 			link: '/login'
 		})	
 	}
-
 	req.session.pageDefaults = pageDefaults
 	next()
 })

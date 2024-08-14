@@ -8,26 +8,21 @@
 //	variables necessary for express
 const express = require('express')
 const router = express.Router()
-const { Page } = require('./util/DOM')
+const { Page, Breadcrumb } = require('./util/DOM')
 
 /* GET about page. */
 router.get('/',
 	async function (req, res) {
+		const breadcrumb = new Breadcrumb({
+			'Home':'/',
+			'About':null,
+		})
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'About',
-			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-5">
-			<div class="row">
-				<div class="col">
-					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
-						<ol class="breadcrumb mb-0">
-							<li class="breadcrumb-item"><a href="/">Home</a></li>
-							<li class="breadcrumb-item active" aria-current="page">About</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
+			${breadcrumb.render()}
 			<div class="text-center text-body container p-5">
 				EJS Starter is a template application and demo project for creating new ExpressJS applications with ease. Built-in with scripts for elimiating the worldload as well as EJS teampltes for quick page generation. Create a copy of this project and get started <a href="https://github.com/bhar2254/EJS-Starter">today</a>!
 			</div>
@@ -40,22 +35,17 @@ router.get('/',
 
 router.get('/developer',
 	async function (req, res) {
+		const breadcrumb = new Breadcrumb({
+			'Home':'/',
+			'About':'/About',
+			'Projects':null
+		})
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Developer',
-			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-5">
-			<div class="row">
-				<div class="col">
-					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
-						<ol class="breadcrumb mb-0">
-							<li class="breadcrumb-item"><a href="/">Home</a></li>
-							<li class="breadcrumb-item"><a href="/about">About</a></li>
-							<li class="breadcrumb-item active" aria-current="page">Developer</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
+			${breadcrumb.render()}
 			<div class="text-center text-body container p-5">
 				Hi! My name's Blaine. I make websites and other JavaScript applications. If you're interested in creating your own JavaScript projects like this one, check out my <a href='https://github.com/bhar2254'>GitHub</a> or check out my site <a href='https://blaineharper.com'>BlaineHarper.com</a> for (possibly?) up to date details.
 			</div>
@@ -68,22 +58,17 @@ router.get('/developer',
 
 router.get('/projects',
 	async function (req, res) {
+		const breadcrumb = new Breadcrumb({
+			'Home':'/',
+			'About':'/About',
+			'Projects':null
+		})
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Projects',
-			body: `<div class='mx-auto my-5 py-3 bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-5">
-			<div class="row">
-				<div class="col">
-					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 mb-4">
-						<ol class="breadcrumb mb-0">
-							<li class="breadcrumb-item"><a href="/">Home</a></li>
-							<li class="breadcrumb-item"><a href="/about">About</a></li>
-							<li class="breadcrumb-item active" aria-current="page">Projects</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
+			${breadcrumb.render()}
 			<div class="text-center text-body container p-5">
 				If you'd like to view my other projects, check out my <a href='https://github.com/bhar2254'>GitHub</a>!
 			</div>
