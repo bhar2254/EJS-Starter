@@ -78,7 +78,7 @@ router.get('/me',
 			},
 			body: `
 <div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-	<div class="text-body container p-4">
+	<div class="text-body container ">
 	  	${breadcrumb.render()}
 		<div class="text-body">
 			<div class="row g-4">

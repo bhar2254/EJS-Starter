@@ -165,7 +165,7 @@ router.get('/parallax',
             const title = `<div class="col-sm-4 col-xs-12">
                         <h1>${_args.title}</h1>
                     </div>`
-            return `<div class="text-center text-body container p-4">
+            return `<div class="text-center text-body container ">
 				<div class="row">
                     ${!_args.flipped ? title : ''}
                     <div class="col-sm-8 col-xs-12">
