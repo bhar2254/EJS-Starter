@@ -57,7 +57,7 @@ router.get('/me',
 			pageTitle: 'My Profile',
 			body: `
 <div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-	<div class="text-body container p-5">
+	<div class="text-body container p-4">
 	  	${breadcrumb.render()}
 		<div class="text-body">
 			<div class="row">

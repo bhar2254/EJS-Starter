@@ -32,9 +32,9 @@ router.get('/',
 			pageTitle: 'Examples',
 			body: `
                 <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
-                    <div class="p-5">
+                    <div class="p-4">
 			${breadcrumb.render()}
-			<div class="container p-5">
+			<div class="container p-4">
                 <div class="row">
                     <div class="text-body text-center">
 				        Welcome to my newest version of my ExpressJS Starter site! Here you can browse some templates that I've made!
@@ -66,9 +66,9 @@ router.get('/typography',
 			pageTitle: 'Typography',
 			body: `
                 <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
-                    <div class="p-5">
+                    <div class="p-4">
 			${breadcrumb.render()}
-			<div class="container p-5">
+			<div class="container p-4">
                 <div cass="row">
                     <h3 class="text-center">From the official Bootstrap cheatsheet found at <a href="https://getbootstrap.com/docs/5.0/examples/cheatsheet/">getbootstrap.com</a></h3>
                 </div>
@@ -165,7 +165,7 @@ router.get('/parallax',
             const title = `<div class="col-sm-4 col-xs-12">
                         <h1>${_args.title}</h1>
                     </div>`
-            return `<div class="text-center text-body container p-5">
+            return `<div class="text-center text-body container p-4">
 				<div class="row">
                     ${!_args.flipped ? title : ''}
                     <div class="col-sm-8 col-xs-12">
@@ -181,7 +181,7 @@ router.get('/parallax',
 			pageTitle: 'Parallax',
 			body: `
                 <div class="m-5 mx-auto bh-dark-grey bh-left-bar-secondary bg-gradient col-lg-9 col-md-12 col-sm-12 text-body">
-                    <div class="p-5">
+                    <div class="p-4">
                         ${breadcrumb.render()}
                     </div>
                     ${parallax.render({height: 25, link: `https://api.nasa.gov/EPIC/archive/natural/2019/05/30/png/epic_1b_20190530011359.png?api_key=${process.env.NASA_API_KEY}`})}
