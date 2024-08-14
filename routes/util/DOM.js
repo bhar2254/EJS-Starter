@@ -400,7 +400,7 @@ class Parallax extends HtmlElement {
         this._content = content
     }
     get content() {
-        return `<div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}rem; background-image: url('${this.link}');"></div>`
+        return `<div class="parallax" style="position: relative;opacity: 0.75;background-attachment: fixed;background-position: center;background-repeat: no-repeat;background-size: cover; min-height: ${this.height}vh; background-image: url('${this.link}');"></div>`
     }
     render(args) {
         const _args = {...args}

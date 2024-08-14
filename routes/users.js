@@ -10,6 +10,7 @@ const express = require('express')
 const router = express.Router()
 const { Page, Breadcrumb } = require('./util/DOM')
 const { requiresAuth } = require('express-openid-connect');
+const fetch = require('../fetch')
 
 const nextLevelExp = (exp) => {
 	return Math.round((calculateLevel(exp) + 1) ** 2)
@@ -24,6 +25,7 @@ router.get('/me',
 	requiresAuth(),
 	async function (req, res) {
 		const currentUser = req.session.currentUser
+		const apod = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
 		const subTypes = {
 			'google-oauth2': 'Google',
 			'github': 'GitHub',
@@ -40,7 +42,7 @@ router.get('/me',
 			const response = []
 			Object.keys(_args).forEach(key => {
 				response.push(`
-						<div class="row">
+						<div class="row g-4">
 							<div class="col-sm-3">
 								<p class="mb-0">${key}</p>
 							</div>
@@ -55,14 +57,33 @@ router.get('/me',
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'My Profile',
+			header: {
+				...pageDefaults.header,
+				append: pageDefaults.header.append + `<style>body {
+					background-repeat: no-repeat;
+					background-attachment: fixed;
+
+					/* Full height */
+					height: 100%;
+
+					/* Center and scale the image nicely */
+					background-position: center;
+					background-repeat: no-repeat;
+					background-size: cover;
+
+					background-image: url('${apod.url}');
+					font-family: 'Gotham Narrow', sans-serif;
+			  	}
+				</style>`
+			},
 			body: `
 <div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 	<div class="text-body container p-4">
 	  	${breadcrumb.render()}
 		<div class="text-body">
-			<div class="row">
+			<div class="row g-4">
 				<div class="col-lg-4">
-					<div class="card mb-4">
+					<div class="card bg-glass-secondary shadow-lg">
 					<div class="card-body text-center">
 						<img src="${currentUser.picture}" alt="avatar"
 						class="rounded-circle img-fluid" style="width: 150px;">
@@ -75,7 +96,7 @@ router.get('/me',
 			</div>
 			<div class="col-lg-8">
 				<form action="/" method="get">
-					<div class="card mb-4">
+					<div class="card bg-glass-primary shadow-lg">
 					<div class="card-body">
 						${profileRows({
 							'Full Name': `<span id="name" class="editable">${currentUser.name}</span>`,
