@@ -550,7 +550,7 @@ class Page extends Defaults {
         return `
             <nav class='navbar navbar-expand-lg text-end bg-glass sticky-top shadow-lg'>
                 <div class='col-7 container-fluid'>
-                <button class='ms-auto bh-light-gray my-1 navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><i class='fa-solid fa-bars'></i></button>
+                <button class='ms-auto bg-glass my-1 navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><i class='fa-solid fa-bars'></i></button>
                 <div class='collapse navbar-collapse' id='navbarSupportedContent'>
                     <a id='navbar_banner_button' class='fs-5 navbar-brand hide-on-shrink' href='/'>${this.brand}</a>
                     <ul class='navbar-nav ms-auto'>

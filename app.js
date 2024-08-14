@@ -135,7 +135,7 @@ let pageDefaults = {
 		</style>`
 	},
 	siteTitle: `EJS Starter`,
-	brand: `EJS Starter`,
+	brand: `BlaineHarper.com`,
 	footer: footer
 }
 
