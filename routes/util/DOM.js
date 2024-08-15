@@ -115,7 +115,7 @@ class Breadcrumb extends HtmlElement {
             links.push(value)
         })
 		this.content = `<div class="col">
-					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3">
+					<nav aria-label="breadcrumb" class="bg-body-tertiary rounded-3 p-3 shadow-lg">
 						<ol class="breadcrumb mb-0">
 							${links.join('')}
 						</ol>
@@ -128,7 +128,7 @@ class Card extends HtmlElement {
     constructor(args) {
         super(args)
         this.addClass('card')
-        const { header = {}, body = {}, footer = {}, options = {} } = args
+        const { header = '', body = '', footer = '', options = '' } = args
         this.header = header
         this.centered = options.centered ? 'text-center' : ''
         this.body = body

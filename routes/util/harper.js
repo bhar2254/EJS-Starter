@@ -8,6 +8,9 @@ module exports
 	debugLog: debugLog,
 */
 
+const { SQLObject } = require('./sql')
+const fetch = require('../../fetch')
+
 //	Colors for beautifying the console
 const consoleColors = {
 	//	Node colors for reference
@@ -55,10 +58,19 @@ const safeAssign = (valueFn, catchFn) => {
 	}
 }
 
+const cacheFetch = async (ref, fetchUrl) => {
+	const cache = new SQLObject({table: 'cache', primaryKey: 'ref', ref: ref})
+	const data = await cache.read()
+	if( data == 0 || data.length == 0 )
+		await cache.create({value: JSON.stringify(await fetch(fetchUrl)).replaceAll('\"',"\\\"")})
+	return JSON.parse(cache.value.replaceAll("\\\"","\""))
+}
+
 // 	Export functions for later use
 module.exports={
 //	General Functions
 	consoleColors: consoleColors,
 	debugLog: debugLog,
-	safeAssign: safeAssign
+	safeAssign: safeAssign,
+	cacheFetch: cacheFetch
 }

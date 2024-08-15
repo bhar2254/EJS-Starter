@@ -6,9 +6,10 @@
 */
 
 //	variables necessary for express
-const { Page, Breadcrumb } = require('./util/DOM')
+const { Page, Breadcrumb, Table } = require('./util/DOM')
 const fetch = require('../fetch')
 const express = require('express')
+const { SQLObject } = require('./util/sql')
 const router = express.Router()
 
 router.get('/signout',
@@ -24,6 +25,8 @@ router.get('/',
 		const breadcrumb = new Breadcrumb({
 			'Home': null
 		})
+		const users = new SQLObject({table:'users', all:true})
+		const userTable = new Table({data: await users.read()})
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Home',
@@ -31,9 +34,16 @@ router.get('/',
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
-				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
-					Welcome to my newest version of my ExpressJS Starter site!
-				</div>
+				<div class="row">
+					<div class="mx-auto col-12 text-center mb-5">
+						Welcome to the Admin Center!
+					</div>
+				<div>
+				<div class="row">
+					<div class="mx-auto table-responsive col-12">
+						${userTable.render()}
+					</div>
+				</div>	
 			</div>
 		</div>
   </div>`

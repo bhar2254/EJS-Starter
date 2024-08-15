@@ -10,7 +10,9 @@ const express = require('express')
 const router = express.Router()
 const { Page, Breadcrumb } = require('./util/DOM')
 const { requiresAuth } = require('express-openid-connect');
-const fetch = require('../fetch')
+const fetch = require('../fetch');
+const { SQLObject } = require('./util/sql');
+const { cacheFetch } = require('./util/harper');
 
 const nextLevelExp = (exp) => {
 	return Math.round((calculateLevel(exp) + 1) ** 2)
@@ -25,12 +27,7 @@ router.get('/me',
 	requiresAuth(),
 	async function (req, res) {
 		const currentUser = req.session.currentUser
-		const apod = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
-		const subTypes = {
-			'google-oauth2': 'Google',
-			'github': 'GitHub',
-		}
-		const subSplit = currentUser.sub.split('|')
+		const apod = await cacheFetch('nasa_apod', `https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
 		const breadcrumb = new Breadcrumb({
 			'Home': '/',
 			'Users': null,
@@ -44,16 +41,17 @@ router.get('/me',
 				response.push(`
 						<div class="row g-4">
 							<div class="col-sm-3">
-								<p class="mb-0">${key}</p>
+								<p class="mb-0 text-white">${key}</p>
 							</div>
 							<div class="col-sm-9">
-								<p class="mb-0"><span id="picture" class="editable">${_args[key]}</span></p>
+								<p class="mb-0 text-white">${_args[key]}</p>
 							</div>
 						</div>`)
 			})
 			return response.join('<hr>')
 		}
 		const pageDefaults = req.session.pageDefaults
+		const role = req.session.meta.roles[Number(currentUser.role)]
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'My Profile',
@@ -83,27 +81,34 @@ router.get('/me',
 		<div class="text-body">
 			<div class="row g-4">
 				<div class="col-lg-4">
-					<div class="card bg-glass-secondary shadow-lg">
+					<div class="card bg-glass-primary-3 shadow-lg">
 						<div class="card-body text-center">
 							<img src="${currentUser.picture}" alt="avatar"
 							class="rounded-circle img-fluid" style="width: 150px;">
 							<br>
-							<a class="btn bh-primary mt-3" href="http://en.gravatar.com/emails/">Edit photo</a>
 							<h5 class="my-3">${currentUser.nickname}</h5>
 							<p class="mb-0">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
 						</div>
 					</div>
 				</div>
 				<div class="col-lg-8">
-					<form action="/" method="get">
-						<div class="card bg-glass-primary shadow-lg">
+					<form method="post">
+						<div class="card bg-glass-primary-3 shadow-lg">
 							<div class="card-body">
 								${profileRows({
 									'Full Name': `<span id="name" class="editable">${currentUser.name}</span>`,
-									'Email': `<span id="picture" class="editable">${currentUser.email}</span> ${currentUser.email_verified ? '' : ' (not verified) '}`,
+									'Email': `${currentUser.email} ${currentUser.email_verified ? '' : ' (not verified) '}`,
 									'Picture URL': `<span id="picture" class="editable">${currentUser.picture}</span>`,
-									'Authentication Method': `<span id="sub.method" class="editable">${subTypes[subSplit[0]]}</span>: <span id="sub.id" class="editable">${subSplit[1]}`,
+									'Authentication Method': `${currentUser.sub}`,
+									'Role': `${role}`
 								})}
+							</div>
+							<div class="row mx-auto p-3">
+								<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
+								<div class="btn-group">
+									<button type="button" onclick="cancelForm()" class="editable-toggler btn bh-dark-grey" style="display:none;">Cancel</button>
+									<button type="submit" class="editable-toggler btn bh-primary" style="display:none;">Save</button>
+								</div>
 							</div>
 						</div>
 					</form>
@@ -116,5 +121,20 @@ router.get('/me',
 		res.render('pages/blank', { content: page.render() })
 	}
 )
+
+/* GET users page. */
+router.post('/me',
+	requiresAuth(),
+	async function (req, res) {
+		const currentUser = req.session.currentUser
+		const updateUser = new SQLObject({table: 'users', id: currentUser.id})
+		if(currentUser.email != req.body.email){
+			updateUser.sid = 'null'
+			updateUser.sub = null
+		}
+		await updateUser.update({id: currentUser.id, ...req.body})
+		req.session.currentUser = updateUser
+		return res.redirect('/users/me')
+})
 
 module.exports = router

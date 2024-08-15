@@ -24,7 +24,9 @@ router.get('/',
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
-				EJS Starter is a template application and demo project for creating new ExpressJS applications with ease. Built-in with scripts for elimiating the worldload as well as EJS teampltes for quick page generation. Create a copy of this project and get started <a href="https://github.com/bhar2254/EJS-Starter">today</a>!
+				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+					EJS Starter is a template application and demo project for creating new ExpressJS applications with ease. Built-in with scripts for elimiating the worldload as well as EJS teampltes for quick page generation. Create a copy of this project and get started <a href="https://github.com/bhar2254/EJS-Starter">today</a>!
+				</div>
 			</div>
 		</div>
 		</div>`
@@ -47,7 +49,9 @@ router.get('/developer',
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
-				Hi! My name's Blaine. I make websites and other JavaScript applications. If you're interested in creating your own JavaScript projects like this one, check out my <a href='https://github.com/bhar2254'>GitHub</a> or check out my site <a href='https://blaineharper.com'>BlaineHarper.com</a> for (possibly?) up to date details.
+				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+					Hi! My name's Blaine. I make websites and other JavaScript applications. If you're interested in creating your own JavaScript projects like this one, check out my <a href='https://github.com/bhar2254'>GitHub</a> or check out my site <a href='https://blaineharper.com'>BlaineHarper.com</a> for (possibly?) up to date details.
+				</div>
 			</div>
 		</div>
 		</div>`
@@ -70,7 +74,9 @@ router.get('/projects',
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
-				If you'd like to view my other projects, check out my <a href='https://github.com/bhar2254'>GitHub</a>!
+				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+					If you'd like to view my other projects, check out my <a href='https://github.com/bhar2254'>GitHub</a>!
+				</div>
 			</div>
 		</div>
 		</div>`

@@ -36,6 +36,7 @@ const config = {
 var app = express()
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
+
 app.use(auth(config))
 
 //	view engine setup
@@ -62,7 +63,7 @@ app.use(session({
 }))
 
 const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"/>
-<link rel="stylesheet" href="https://bhar2254.github.io//src/css/ltc/bs.add.css"/>
+<link rel="stylesheet" href="https://bhar2254.github.io//src/css/ejs-starter/bs.add.css"/>
 <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
 
 <link rel="icon" type="image/x-icon" href="https://blaineharper.com/assets/favicon.ico">
@@ -83,6 +84,7 @@ const footer = `</main>
 	<script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.js"></script>
 
 	<script src="https://kit.fontawesome.com/5496aaa581.js" crossorigin="anonymous"></script>
+	<script src="/js/formToggler.js"></script>
 	<script>
 		// Get the button
 		let buttonToTop = document.getElementById("topButton")
@@ -103,10 +105,6 @@ const footer = `</main>
 			document.body.scrollTop = 0
 			document.documentElement.scrollTop = 0
 		}
-		
-		window.addEventListener("load", (event) => {
-			$('.toast').toast()
-		})
 	</script>
 </body>
 </html>`
@@ -143,11 +141,9 @@ let pageDefaults = {
 const checkForAccount = async (oidc) => {
 	const user = new SQLObject({ table: 'users', email: oidc.user.email, primaryKey: 'email', ...oidc.user })
 	const data = await user.read()
-	if (data === 0)
-		await user.create()
-	if (data !== 0)
-		await user.update()
-	return await user.read()
+	data == 0 || data.length == 0 ? await user.create() : await user.update()
+	const response = await user.read()
+	return response[0]
 }
 
 const examplePages = {
@@ -155,7 +151,16 @@ const examplePages = {
 	'typography': 'Typography'
 }
 
-app.use(async function(req, res, next) {
+app.use(
+	async function(req, res, next) {
+	if(typeof req.session.meta == 'undefined'){
+		const meta = new SQLObject({table: 'meta', all: true})
+		const data = await meta.read()
+		let metaObj = {}
+		data.map(x => metaObj[x.ref] = JSON.parse(x.value))
+		req.session.meta = metaObj
+	}
+
 	pageDefaults.navbar = [{
 		text: 'About',
 		links: [{
@@ -170,11 +175,21 @@ app.use(async function(req, res, next) {
 		links: Object.keys(examplePages).map(x => { 
 			return { text: examplePages[x], link: `/examples/${x}` }
 		}),
+	},{
+		text: 'Posts',
+		link: '/posts',
 	}]
 	const isAuth = req.oidc.isAuthenticated()
 	if(isAuth){
 		if(!req.session.currentUser)
 			req.session.currentUser = await checkForAccount(req.oidc)
+
+		const isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
+		if(isAdmin)
+			pageDefaults.navbar.push({
+				text: 'Admin',
+				link: '/admin'
+			})
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
 			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
@@ -184,7 +199,7 @@ app.use(async function(req, res, next) {
 			link: '/users/me'
 		},{
 			text: 'Logout',
-			link: '/logout'
+			link: '/signout'
 		}])
 	}
 	if(!isAuth){
@@ -197,13 +212,22 @@ app.use(async function(req, res, next) {
 	next()
 })
 
+const minAdmin = (req, res, next) => {
+	if(req.session.meta.min_admin > req.session.currentUser.role)
+		return res.redirect('/users/me')
+	return next()
+}
+
 //	set an endpoint for the root directory and main page routing
 if(!APP_DISABLED){
 	// app.use(loadSQLEnvironment)
 	app.use(`/`,require(`./routes/index`))
 	app.use(`/users`,require(`./routes/users`))
 	app.use(`/examples`,require(`./routes/examples`))
+	app.use(`/posts`,require(`./routes/posts`))
 	app.use(`/about`,require(`./routes/about`))
+	app.use(minAdmin)
+	app.use(`/admin`,require(`./routes/admin`))
 }
 
 if(APP_DISABLED)

@@ -7,6 +7,7 @@
 
 //	variables necessary for express
 const { Page, Parallax, Breadcrumb } = require('./util/DOM')
+const { cacheFetch } = require('./util/harper')
 const fetch = require('../fetch')
 const express = require('express')
 const router = express.Router()
@@ -159,7 +160,7 @@ router.get('/parallax',
             'Examples': '/examples',
             'Parallax': null,
         })
-		const apod = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
+		const apod = await cacheFetch('nasa_apod',`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
 		const pageDefaults = req.session.pageDefaults
 		const parallax = new Parallax()
         const parallaxGroup = (args) => {

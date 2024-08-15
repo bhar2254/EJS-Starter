@@ -11,16 +11,12 @@
 	-	SQLObject(id, table, options)
 		>	Used for single object queries to a SQL database
 		>	Single CRUD functions
-	-	SQLObjectType(table)
-		>	Used for other SQL classes for loading object types from SQL database
 
 module exports 
 	queryPromise: queryPromise,
 	SQLObject: SQLObject
 */
 
-const { currentTime } = require('./time')
-const { safeAssign } = require('./harper')
 require('dotenv').config()
 
 DB = require('../../db/sql_connect')
@@ -35,7 +31,14 @@ const queryPromise = (str) => {
 	})
 }
 
-// 	Middleware for loading SQL into env variables
+const safeAssign = (valueFn, catchFn) => {
+	try {
+		return valueFn()
+	} catch (e) {
+		if (catchFn) catchFn(e)
+		return null
+	}
+}
 
 //
 //	SQL PATCH / POST FUNCTIONS
@@ -115,8 +118,6 @@ class SQLObject {
 			if(_args[key] && !this[key])
 				this[key] = _args[key]
 
-		this.update_displayName = _args.update_displayName || this.update_displayName
-
 //		assume that the object has been built properly and send properties to SQL db
 //			use every property that isn't prefixed with _
 //			data = await queryPromise(...,{}) 
@@ -139,8 +140,7 @@ class SQLObject {
 		for(const elem of Object.keys(this)) {
 			if(elem.substring(0,1) == '_' ||
 				!Object.keys(this.properties).includes(elem) ||
-				!this[elem]
-			)
+				!this[elem])
 				continue
 		
 			if(insertIndex)
@@ -175,25 +175,29 @@ class SQLObject {
 				timeConversion += `, DATE_FORMAT(${key}, '${datetime_format}') AS ${key}`
 		}
 		
-		let sqlQuery = `SELECT *${timeConversion} FROM ${table} WHERE ${this.primaryKey} = "${this[this.primaryKey]}";`
+		const where = typeof this.all == 'undefined' ? `WHERE ${this.primaryKey} = "${this[this.primaryKey]}"` : `` 
+		const sqlQuery = `SELECT *${timeConversion} FROM ${table} ${where};`
 		
-		let data = await queryPromise(sqlQuery)
-
-		this._lastSQLQuery = sqlQuery
+		const data = await queryPromise(sqlQuery)
 
 		if(!data.length)
 			return 0
 		
-		let loadData = data[0]
-		Object.keys(loadData).forEach(elem => {
+		const firstRow = data[0]
+		Object.keys(firstRow).forEach(elem => {
 //			initilizate the public vars if necessary
-			this[elem] = this[elem] || loadData[elem]
+			this[elem] = this[elem] || firstRow[elem]
 //			populate the _private vars always
-			this['_'+elem] = loadData[elem]
+			this['_'+elem] = firstRow[elem]
 		})
 
+		this._last =  {
+			query: sqlQuery,
+			response: data,
+		}
+
 		this._read = true
-		return this._lastSQLResponse = loadData		
+		return data
 	}
 //	Filter user scopes and update object in DB
 	async update(args){
@@ -222,44 +226,33 @@ class SQLObject {
 			for(const key of Object.keys(args))
 				this[key] = args[key]
 
-		this.update_time = currentTime()
-
 //		Convert all current parameters without _ to db update query
 //		data = await queryPromise(...,{}) 
-		let sqlQuery = `UPDATE ${this._table} SET `
-		let initialCounter = 0
-		let logCounter = 0
-		for(const elem of Object.keys(this)){
-			const addToLog = !elem.includes('update') && !elem.includes('create')
-			const skipUpdate = this[elem] == 'null' ||
-				this[elem] === '' ||
-				this[elem] == null ||
-				elem.substring(0,1) === '_' ||
-				this[elem] == this[`_${elem}`] ||
-				elem == this._primaryKey ||
-				!Object.keys(this._properties).includes(elem)
-			if(skipUpdate)
-				continue
-			
-			sqlQuery += initialCounter > 0 ? ', ':''
-			sqlQuery += `\`${elem}\` = "${this[elem]}"`
-			if(addToLog){
-				logCounter++
-			}
-			initialCounter++
-		}
-		sqlQuery += ` WHERE ${this._primaryKey} = "${this._id}";`
-		
-		if(logCounter == 0)
-			return this._updateCounter = logCounter
 
-		if(logCounter > 0){
-			this._lastSQLQuery = sqlQuery
-			this._lastSQLResponse = await queryPromise(sqlQuery)
+		const table = this._table.substring(0,4).includes('view') ? this._table.substring(4) : this._table
 
-			this._updateCounter = logCounter
-			return this._lastSQLResponse
+		const setValues = Object.keys(this).filter((x) => (!x.includes('update') && 
+			!x.includes('create') && 
+			this[x] != 'null' && 
+			this[x] != null && 
+			x.substring(0,1) != '_' && 
+			this[x] != this[`_${x}`] && 
+			x != this._primaryKey && 
+			Object.keys(this._properties).includes(x)
+		)).map(x => `\`${x}\` = "${this[x]}"`)
+
+		if(setValues.length == 0)
+			return 0
+
+		const whereStmt = typeof this.all == 'undefined' ? `WHERE ${this._primaryKey} = "${this[this._primaryKey]}"` : ''
+		let sqlQuery = `UPDATE ${table} SET ${setValues.join(', ')} ${whereStmt};`
+	
+		this._last = {
+			query: sqlQuery,
+			response: await queryPromise(sqlQuery)
 		}
+
+		return this._last.response
 	}
 //	Do delete the object from the database
 	async destroy(){
