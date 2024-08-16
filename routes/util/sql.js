@@ -233,6 +233,7 @@ class SQLObject {
 
 		const setValues = Object.keys(this).filter((x) => (!x.includes('update') && 
 			!x.includes('create') && 
+			this[x] != 'undefined' && 
 			this[x] != 'null' && 
 			this[x] != null && 
 			x.substring(0,1) != '_' && 

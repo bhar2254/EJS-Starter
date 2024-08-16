@@ -184,7 +184,7 @@ app.use(
 		if(!req.session.currentUser)
 			req.session.currentUser = await checkForAccount(req.oidc)
 
-		const isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
+		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
 		if(isAdmin)
 			pageDefaults.navbar.push({
 				text: 'Admin',

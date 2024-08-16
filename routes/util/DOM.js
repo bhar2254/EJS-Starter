@@ -481,7 +481,7 @@ class Page extends Defaults {
         this.tag = 'html'
     }
     set body(content) {
-    //  <div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>'
+    //  <div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>'
         const body = `
     <body>
         <div class='main'>

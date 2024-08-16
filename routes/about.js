@@ -20,7 +20,7 @@ router.get('/',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'About',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
@@ -45,7 +45,7 @@ router.get('/developer',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Developer',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
@@ -70,7 +70,7 @@ router.get('/projects',
 		const page = new Page({
 			...req.session.pageDefaults,
 			pageTitle: 'Projects',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">

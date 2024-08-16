@@ -52,7 +52,7 @@ router.get('/',
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Blog',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
@@ -73,16 +73,17 @@ router.get('/',
 router.get('/view',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
-		const breadcrumb = new Breadcrumb({
-			'Home': '/',
-			'Blog': '/posts',
-
-		})
 		const query = req.query 
 		const currentTable = 'viewPosts'
 		const currentUser = req.session.currentUser
 		const post = new SQLObject({table: currentTable, id: query.id, primaryKey: 'id'})
 		await post.read()
+		const breadcrumbObj = {
+			'Home': '/',
+			'Blog': '/posts',
+		}
+		breadcrumbObj[post.title] = null
+		const breadcrumb = new Breadcrumb(breadcrumbObj)
 		const postCard = new Card({
 			header: `<div>
 						<h3><span id="title" class="editable">${post.title}<span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
@@ -101,7 +102,7 @@ router.get('/view',
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Blog',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4">
@@ -163,7 +164,7 @@ router.get('/post/:title',
 		const page = new Page({
 			...pageDefaults,
 			pageTitle: 'Blog',
-			body: `<div class='m-5 mx-auto bh-dark-grey bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
+			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 				<div class="text-body container p-4">
 					${breadcrumb.render()}
 					<div class="text-center text-body container p-4">
