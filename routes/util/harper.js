@@ -61,13 +61,18 @@ const safeAssign = (valueFn, catchFn) => {
 const cacheFetch = async (ref, fetchUrl) => {
 	const cache = new SQLObject({table: 'cache', primaryKey: 'ref', ref: ref})
 	const data = await cache.read()
-	if( data == 0 || data.length == 0 )
-		await cache.create({value: JSON.stringify(await fetch(fetchUrl)).replaceAll('\"',"\\\"")})
+	if( data == 0 || data.length == 0 ){
+		const fetchData = await fetch(fetchUrl)
+		console.log(await fetchData)
+		await cache.create({value: JSON.stringify(
+			fetchData
+		).replaceAll('\"','\\\"').replaceAll('\n',' ')})
+	}
 	return JSON.parse(cache.value.replaceAll("\\\"","\""))
 }
 
 // 	Export functions for later use
-module.exports={
+module.exports = {
 //	General Functions
 	consoleColors: consoleColors,
 	debugLog: debugLog,

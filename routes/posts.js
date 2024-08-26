@@ -88,8 +88,8 @@ router.get('/view',
 			header: `<div>
 						<h3><span id="title" class="editable">${post.title}<span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
 					</div>`,
-			body: `<span id="content" class="editable">${post.content}</span>`,
-			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time} updated @ ${post.update_time}</div>`,
+			body: `<span id="content" class="editable" data-tag="textarea">${post.content}</span>`,
+			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time}</div>`,
 		})
 		const editButtons = post.author_id == currentUser.id ? `
 			<div class="row mx-auto p-3">
@@ -106,7 +106,7 @@ router.get('/view',
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4">
-				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+				<div class="mx-auto col-lg-7 col-md-9 col-sm-11 col-xs-12">
 					<form method="post" action="/posts/update">
 						<input style="display:none;" name="id" value="${post.id}"></input>
 						${postCard.render()}
@@ -115,7 +115,17 @@ router.get('/view',
 				</div>
 			</div>
 		</div>
-  </div>`
+  </div>
+  <script>
+	$(document).ready(function() {
+		$(window).keydown(function(event){
+			if(event.keyCode == 13) {
+			event.preventDefault();
+			return false;
+			}
+		});
+	});
+  </script>`
 		})
 		req.session.returnTo = url.format({
 			pathname: '/posts/view',
@@ -144,8 +154,8 @@ router.get('/post/:title',
 			header: `<div>
 						<h3><span id="title" class="editable">${post.title}<span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
 					</div>`,
-			body: `<span id="content" class="editable">${post.content}</span>`,
-			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time} updated @ ${post.update_time}</div>`,
+			body: `<span id="content" class="editable" data-tag="textarea">${post.content}</span>`,
+			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time}</div>`,
 		})
 		const pageDefaults = req.session.pageDefaults
 		const breadcrumb = new Breadcrumb({

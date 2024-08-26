@@ -9,10 +9,9 @@
 const express = require('express')
 const router = express.Router()
 const { Page, Breadcrumb } = require('./util/DOM')
-const { requiresAuth } = require('express-openid-connect');
-const fetch = require('../fetch');
-const { SQLObject } = require('./util/sql');
-const { cacheFetch } = require('./util/harper');
+const { requiresAuth } = require('express-openid-connect')
+const { SQLObject } = require('./util/sql')
+const { cacheFetch } = require('./util/harper')
 
 const nextLevelExp = (exp) => {
 	return Math.round((calculateLevel(exp) + 1) ** 2)
