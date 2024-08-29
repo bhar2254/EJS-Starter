@@ -79,22 +79,12 @@ router.get('/me',
 			pageTitle: 'My Profile',
 			header: {
 				...pageDefaults.header,
-				append: pageDefaults.header.append + `<style>body {
-					background-repeat: no-repeat;
-					background-attachment: fixed;
-
-					/* Full height */
-					height: 100%;
-
-					/* Center and scale the image nicely */
-					background-position: center;
-					background-repeat: no-repeat;
-					background-size: cover;
-
-					background-image: url('${apod.url}');
-					font-family: 'Gotham Narrow', sans-serif;
-			  	}
-				</style>`
+				append: pageDefaults.header.append + `
+<style>
+	body {
+		background-image: url('${apod.url}');
+	}
+</style>`
 			},
 			body: `
 <div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
@@ -105,8 +95,7 @@ router.get('/me',
 				<div class="col-lg-4">
 					<div class="card bg-glass-primary-3 shadow-lg">
 						<div class="card-body text-center">
-							<img src="${currentUser.picture}" alt="avatar"
-							class="rounded-circle img-fluid" style="width: 150px;">
+							<img src="${currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
 							<br>
 							<h5 class="my-3">${currentUser.nickname}</h5>
 							<p class="mb-0">Level ${calculateLevel(currentUser.exp)} (${currentUser.exp} / ${nextLevelExp(currentUser.exp)})</p>
@@ -160,7 +149,6 @@ router.post('/me',
 		req.session.currentUser = updateUser
 		return res.redirect('/users/me')
 })
-
 
 /* GET users page. */
 router.get('/profile/:guid',

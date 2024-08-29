@@ -7,7 +7,6 @@
 
 //	variables necessary for express
 const { Page, Breadcrumb } = require('./util/DOM')
-const fetch = require('../fetch')
 const express = require('express')
 const router = express.Router()
 

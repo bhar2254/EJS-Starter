@@ -6,7 +6,7 @@
 //	required packages
 const express = require('express')
 const session = require('express-session')
-const { auth } = require('express-openid-connect');
+const { auth } = require('express-openid-connect')
 const path = require('path')
 const cors = require('cors')
 const logger = require('morgan')
@@ -139,9 +139,16 @@ let pageDefaults = {
 
 //  check if user has logged in before
 const checkForAccount = async (oidc) => {
-	const user = new SQLObject({ table: 'users', email: oidc.user.email, primaryKey: 'email', ...oidc.user })
+	const user = new SQLObject({ 
+		table: 'users', 
+		email: oidc.user.email, 
+		primaryKey: 'email', 
+		...oidc.user 
+	})
 	const data = await user.read()
-	data == 0 || data.length == 0 ? await user.create() : await user.update()
+	data == 0 || data.length == 0 ? 
+		await user.create() : 
+		await user.update()
 	const response = await user.read()
 	return response[0]
 }
