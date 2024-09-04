@@ -1,13 +1,13 @@
 const toggleForm = () => {
     $(document).ready(function() {
         $('.editable-toggler').toggle()
-        $('span.editable').each(function() {
+        $('.editable').each(function() {
             const attr = {
                 id: $(this).attr('id'),
                 class: $(this).attr('class'),
-                tag: $(this).attr('data-tag') || 'input',
-                type: $(this).attr('data-type') || 'text',
-                text: $(this).text(),
+                tag: $(this).data('tag') || 'input',
+                type: $(this).data('type') || 'text',
+                text: $(this).html(),
             }
             var input = $(`<${attr.tag}>`, {
                 type: 'text',
@@ -18,9 +18,9 @@ const toggleForm = () => {
                 rows: 5,
             })
             input.addClass('form-control bg-glass-secondary-3')
+            input.data('tag', attr.tag)
+            input.data('type', attr.type)
             $(this).replaceWith(input)
-            $(this).attr('data-tag', attr.tag)
-            $(this).attr('data-type', attr.type)
         });
     });
 }
@@ -28,21 +28,36 @@ const toggleForm = () => {
 const cancelForm = () => {
     $(document).ready(function() {
         $('.editable-toggler').toggle()
-        $('input.editable textarea.editable select.editable').each(function() {
+        $('.editable').each(function() {
             // Get the id of the current span
-            var inputId = $(this).attr('name');
-            var inputClass = $(this).attr('class');
-            // Get the current text inside the span
-            var inputText = $(this).val();
-            // Create a new input element
-            var span = $('<span>', {
-                id: inputId,
-                text: inputText,
-                class: inputClass
+            const attr = {
+                name: $(this).attr('name'),
+                class: $(this).attr('class'),
+                content: $(this).val(),
+                tag: $(this).data('tag') || 'input',
+                type: $(this).data('type') || 'text',
+            }
+            // Create a new span element
+            var span = $(`<span>`, {
+                id: attr.name,
+                html: attr.content,
+                class: attr.class
             });
-            span.removeClass('form-control bg-glass-secondary-3')
+
             // Replace the span with the input
-            $(this).replaceWith(span);
+            span.removeClass('form-control bg-glass-secondary-3')
+            span.data('tag', attr.tag)
+            span.data('type', attr.type)
+            $(this).replaceWith(span)
+        });
+        $('.marked-content').each(function() {
+            $(this).html(marked.parse($(this).html()))
         });
     });
 }
+
+$(document).ready(function() {
+    $('.marked-content').each(function() {
+        $(this).html(marked.parse($(this).html()))
+    });
+});

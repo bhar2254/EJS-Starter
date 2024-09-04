@@ -67,7 +67,10 @@ const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/b
 <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
 
 <link rel="icon" type="image/x-icon" href="https://blaineharper.com/assets/favicon.ico">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>`
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>`
+
 
 const footer = `</main>
 	<footer id="mainFooter" class="shadow-lg p-2 text-center bg-glass mx-auto sticky-footer">
@@ -146,9 +149,8 @@ const checkForAccount = async (oidc) => {
 		...oidc.user 
 	})
 	const data = await user.read()
-	data == 0 || data.length == 0 ? 
-		await user.create() : 
-		await user.update()
+	if(data == 0 || data.length == 0)
+		await user.create()
 	const response = await user.read()
 	return response[0]
 }

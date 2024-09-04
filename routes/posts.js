@@ -12,11 +12,21 @@ const { requiresAuth } = require('express-openid-connect');
 const url = require('url');
 const { SQLObject } = require('./util/sql')
 const router = express.Router()
+const { marked } = require('marked')
 
 router.get('/signout',
 	async function (req, res, next) {
 		req.session.currentUser = null
 		res.redirect('/logout')
+})
+
+router.post('/update',
+	requiresAuth(),
+	async function (req, res) {
+		const post = req.body
+		const postUpdate = new SQLObject({table: 'posts', id: post.id})
+		await postUpdate.update({id: post.id, ...post})
+		return res.redirect(req.session.returnTo)
 })
 
 /* GET home page. */
@@ -46,8 +56,7 @@ router.get('/',
 			return `
 				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
 					${postCard.render()}
-				</div>
-			`
+				</div>`
 		}).join(' ')
 		const page = new Page({
 			...pageDefaults,
@@ -64,7 +73,7 @@ router.get('/',
 				</div>
 			</div>
 		</div>
-  </div>`
+  	</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}
@@ -77,7 +86,10 @@ router.get('/view',
 		const currentTable = 'viewPosts'
 		const currentUser = req.session.currentUser
 		const post = new SQLObject({table: currentTable, id: query.id, primaryKey: 'id'})
-		await post.read()
+		await post.read()		
+		const create_time = String(post.create_time) || ''
+		const create_date = new Date(create_time)
+		const time_string = `${create_time.substring(0,10)} @ ${create_date.toLocaleTimeString()}`
 		const breadcrumbObj = {
 			'Home': '/',
 			'Blog': '/posts',
@@ -86,12 +98,12 @@ router.get('/view',
 		const breadcrumb = new Breadcrumb(breadcrumbObj)
 		const postCard = new Card({
 			header: `<div>
-						<h3><span id="title" class="editable">${post.title}<span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
+						<h3><span id="title" class="editable">${post.title}</span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
 					</div>`,
-			body: `<span id="content" class="editable" data-tag="textarea">${post.content}</span>`,
-			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time}</div>`,
+			body: `<span id="content" class="editable marked-content" data-tag="textarea">${post.content}</span>`,
+			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} on ${time_string}</div>`,
 		})
-		const editButtons = post.author_id == currentUser.id ? `
+		const editButtons = req.session.currentUser && post.author_id == currentUser.id ? `
 			<div class="row mx-auto p-3">
 				<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
 				<div class="btn-group">
@@ -105,7 +117,7 @@ router.get('/view',
 			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
 		<div class="text-body container p-4">
 			${breadcrumb.render()}
-			<div class="text-center text-body container p-4">
+			<div class="text-body container p-4">
 				<div class="mx-auto col-lg-7 col-md-9 col-sm-11 col-xs-12">
 					<form method="post" action="/posts/update">
 						<input style="display:none;" name="id" value="${post.id}"></input>
@@ -115,79 +127,11 @@ router.get('/view',
 				</div>
 			</div>
 		</div>
-  </div>
-  <script>
-	$(document).ready(function() {
-		$(window).keydown(function(event){
-			if(event.keyCode == 13) {
-			event.preventDefault();
-			return false;
-			}
-		});
-	});
-  </script>`
+  </div>`
 		})
 		req.session.returnTo = url.format({
 			pathname: '/posts/view',
 			query: req.query
-		})
-		res.render('pages/blank', { content: page.render() })
-	}
-)
-router.post('/update',
-	requiresAuth(),
-	async function (req, res) {
-		const post = req.body
-		const postUpdate = new SQLObject({table: 'posts', id: post.id})
-		await postUpdate.update({id: post.id, ...post})
-		return res.redirect(req.session.returnTo)
-})
-
-router.get('/post/:title',
-	async function (req, res, next) {
-		const { title } = req.params
-		const currentTable = 'viewPosts'
-		const currentUser = req.session.currentUser
-		const post = new SQLObject({table: currentTable, title: title.replaceAll("+"," "), primaryKey: 'title'}) 
-		await post.read()
-		const postCard = new Card({
-			header: `<div>
-						<h3><span id="title" class="editable">${post.title}<span></h3> <span id="subtitle" class="editable small text-muted">${post.subtitle}</span>
-					</div>`,
-			body: `<span id="content" class="editable" data-tag="textarea">${post.content}</span>`,
-			footer: `<div class="text-center">by ${post.name == null ? 'Anonymous' : post.name} @ ${post.create_time}</div>`,
-		})
-		const pageDefaults = req.session.pageDefaults
-		const breadcrumb = new Breadcrumb({
-			Home: '/',
-			Blog: '/posts',
-			Post : null
-		})
-		const editButtons = post.author_id == currentUser.id ? `
-			<div class="row mx-auto p-3">
-				<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
-				<div class="btn-group">
-					<button type="button" onclick="cancelForm()" class="editable-toggler btn bh-dark-grey" style="display:none;">Cancel</button>
-					<button type="submit" class="editable-toggler btn bh-primary" style="display:none;">Save</button>
-				</div>
-			</div>` : ''
-		const page = new Page({
-			...pageDefaults,
-			pageTitle: 'Blog',
-			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-				<div class="text-body container p-4">
-					${breadcrumb.render()}
-					<div class="text-center text-body container p-4">
-						<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
-							<form method="post" action="/posts/update">
-								<input style="display:none;" name="id" value="${post.id}"></input>
-								${postCard.render()}
-								${editButtons}
-							</form>
-						</div>
-					</div>
-				</div>
-		</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}

@@ -240,7 +240,7 @@ class SQLObject {
 			this[x] != this[`_${x}`] && 
 			x != this._primaryKey && 
 			Object.keys(this._properties).includes(x)
-		)).map(x => `\`${x}\` = "${this[x]}"`)
+		)).map(x => `\`${x}\` = "${this[x].replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\0/g, '\\0')}"`)
 
 		if(setValues.length == 0)
 			return 0
