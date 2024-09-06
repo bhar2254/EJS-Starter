@@ -41,13 +41,12 @@ router.get('/signout',
 })
 
 /* GET users page. */
-router.post('/update/:table',
+router.post('/update/:table/:guid',
 	requiresAuth(),
 	async function (req, res) {
-		const { table } = req.params
-		let updateObject = { table: table, primaryKey: 'guid', guid: req.body.guid }
+		const { table, guid } = req.params
+		let updateObject = { table: table, primaryKey: 'guid', guid: guid, ...req.body }
 		updateObject = new SQLObject(updateObject)
-		console.log({...req.body})
 		await updateObject.update()
 		return res.redirect(req.session.returnTo)
 })

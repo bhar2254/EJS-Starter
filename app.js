@@ -202,10 +202,10 @@ app.use(
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
 			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
-			link: '/users/me'
+			link: '/users/profile/me'
 		},{
 			text: 'My Profile',
-			link: '/users/me'
+			link: '/users/profile/me'
 		},{
 			text: 'Logout',
 			link: '/signout'
