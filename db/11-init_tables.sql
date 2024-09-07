@@ -50,7 +50,7 @@ DROP TABLE IF EXISTS posts;
 CREATE TABLE posts (
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     guid CHAR(36) NOT NULL DEFAULT (UUID()),
-    author_id INT NOT NULL DEFAULT (''),
+    author_id INT NOT NULL DEFAULT 0,
     title TEXT NOT NULL DEFAULT (''),
     subtitle TEXT NOT NULL DEFAULT (''),
     tags TEXT NOT NULL DEFAULT (''),

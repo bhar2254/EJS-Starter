@@ -6,10 +6,12 @@ const toggleForm = () => {
                 id: $(this).attr('id'),
                 class: $(this).attr('class'),
                 tag: $(this).data('tag') || 'input',
+                options: $(this).data('options') || '',
                 type: $(this).data('type') || 'text',
                 text: $(this).html(),
             }
             var input = $(`<${attr.tag}>`, {
+                id: attr.id,
                 type: 'text',
                 name: attr.id,
                 value: attr.text,
@@ -17,10 +19,23 @@ const toggleForm = () => {
                 class: attr.class,
                 rows: 5,
             })
+            if(attr.tag == 'select')
+                Object.entries(attr.options || {}).forEach(([key, value]) => {
+                    input.append(`<option value="${key}">${value}</option>`)
+                    if(attr.text == value)
+                        input.val(key)
+                })
             input.addClass('form-control bg-glass-secondary-3')
             input.data('tag', attr.tag)
+            input.data('options', attr.options)
             input.data('type', attr.type)
             $(this).replaceWith(input)
+        });
+        
+        $('form').each(function() {
+            $(this).dirty({
+                preventLeaving: true
+            });
         });
     });
 }
@@ -33,7 +48,8 @@ const cancelForm = () => {
             const attr = {
                 name: $(this).attr('name'),
                 class: $(this).attr('class'),
-                content: $(this).val(),
+                content: $(this).data('tag') == 'select' ? $(this).find('option:selected').text() : $(this).val() ,
+                options: $(this).data('options') || '',
                 tag: $(this).data('tag') || 'input',
                 type: $(this).data('type') || 'text',
             }
@@ -48,10 +64,17 @@ const cancelForm = () => {
             span.removeClass('form-control bg-glass-secondary-3')
             span.data('tag', attr.tag)
             span.data('type', attr.type)
+            span.data('options', attr.options)
             $(this).replaceWith(span)
         });
         $('.marked-content').each(function() {
             $(this).html(marked.parse($(this).html()))
+        });
+        
+        $('form').each(function() {
+            $(this).dirty({
+                preventLeaving: true
+            });
         });
     });
 }

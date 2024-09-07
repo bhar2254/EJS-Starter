@@ -14,10 +14,14 @@ const cluster = require('cluster')
 const process = require('node:process')
 const cookieParser = require('cookie-parser')
 const { Page } = require('./routes/util/DOM')
-const { SQLObject } = require('./routes/util/sql')
+const { SQLObject, queryPromise } = require('./routes/util/sql')
 const { consoleColors } = require('./routes/util/harper')
 const { applyCSSTheme } = require('./routes/util/themes')
 require('dotenv').config()
+
+String.prototype.capitalizeFirstChar = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1)
+}
 
 //	setting local env vars
 const DEBUG = process.env.DEBUG || false
@@ -81,6 +85,7 @@ const footer = `</main>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.7.0.js" crossorigin="anonymous"></script>
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+	<script src="/js/jQuery.dirty.js"></script>
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -108,6 +113,15 @@ const footer = `</main>
 			document.body.scrollTop = 0
 			document.documentElement.scrollTop = 0
 		}
+	</script>
+	<script>
+		$(document).ready(function() {
+			$('form').each(function() {
+				$(this).dirty({
+					preventLeaving: true
+				});
+			});
+		});
 	</script>
 </body>
 </html>`
@@ -194,11 +208,20 @@ app.use(
 			req.session.currentUser = await checkForAccount(req.oidc)
 
 		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
-		if(isAdmin)
-			pageDefaults.navbar.push({
+		const tables = await queryPromise('SHOW TABLES;')
+		const tableList = tables.map(x => ({
+			text: String(x.Tables_in_ejs_starter_test).capitalizeFirstChar(), 
+			link: `/view/${x.Tables_in_ejs_starter_test}`
+		}))
+		if(isAdmin) {
+			pageDefaults.navbar = pageDefaults.navbar.concat([{
 				text: 'Admin',
-				link: '/admin'
-			})
+				links: [{
+					text: 'Admin Center',
+					link: '/admin'
+				}, ...tableList]
+			}])
+		}
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
 			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
@@ -223,7 +246,7 @@ app.use(
 
 const minAdmin = (req, res, next) => {
 	if(req.session.meta.min_admin > req.session.currentUser.role)
-		return res.redirect('/users/me')
+		return res.redirect('/users/profile/me')
 	return next()
 }
 

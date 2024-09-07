@@ -27,10 +27,6 @@ function createSubset(obj, keys) {
 }
 
 const tableDefinitions = {
-	'users': ['id', 'campus_id', 'name','email','role'],
-	'vehicles': ['vehicles_id','vehicle_title','color','state','plate', 'permits_id'],
-	'permits': ['permits_id', 'permit_type','permit_num','expire','vehicles_id'],
-	'tickets': ['tickets_id','ticket_type','user_id','location'],
 	'meta': ['id','ref','value'],
 }
 
@@ -41,13 +37,91 @@ router.get('/signout',
 })
 
 /* GET users page. */
+router.post('/create/:table',
+	requiresAuth(),
+	async function (req, res) {
+		const { table } = req.params
+		const { role, id } = req.session.currentUser
+
+		const setDefaults = {
+			'users': {
+
+			},
+			'posts': {
+				'author_id': id
+			},
+			'meta': {
+
+			},
+			'cache': {
+
+			},
+		}
+		const defaults = setDefaults[table] || {}
+
+		let createObject = { table: table, ...req.body, ...defaults }
+		createObject = new SQLObject(createObject)
+
+		let preventCreate = false
+		const minimum_roles = {
+			'users': 4,
+			'posts': 2,
+			'meta': 5,
+			'cache': 5,
+		}
+		if(minimum_roles[table] > role)
+			preventCreate = true
+
+		if(!preventCreate)
+			await createObject.create()
+
+		return res.redirect(`/view/${table}/${createObject.guid}`)
+})
+
+/* GET users page. */
 router.post('/update/:table/:guid',
 	requiresAuth(),
 	async function (req, res) {
 		const { table, guid } = req.params
+		const currentUser = req.session.currentUser
 		let updateObject = { table: table, primaryKey: 'guid', guid: guid, ...req.body }
 		updateObject = new SQLObject(updateObject)
-		await updateObject.update()
+		const data = await updateObject.read()
+
+		let preventUpdate = false
+		const tableCallbacks = {
+			'users': () => {
+				//	reset the role if user doesn't meet criteria
+				if(!currentUser.isAdmin || Number(currentUser.role) <= Number(updateObject.role))
+					updateObject.role = updateObject._role
+			},
+			'posts': () => {
+				//	check if you're the owner or an admin
+				const hasPrivileges = currentUser.isAdmin
+				const isOwner = currentUser.users_id == updateObject.author_id
+				if(!hasPrivileges && !isOwner)
+					preventUpdate = true
+			},
+			'meta': () => {
+				//	refresh the meta if the user has privileges
+				const min_role = 5 // a higher than normal minimum. consider scopes lates
+				if(currentUser.role < min_role)
+					preventUpdate = true
+				if(!preventUpdate) {
+					req.session.meta[updateObject.ref] = JSON.parse(updateObject.value)
+				}
+			}
+		}
+		if(tableCallbacks[table])
+			tableCallbacks[table]()
+
+		if(!preventUpdate) {
+			await updateObject.update()
+
+			if(guid == currentUser.guid)
+				req.session.currentUser = updateObject
+		}
+
 		return res.redirect(req.session.returnTo)
 })
 
@@ -62,15 +136,15 @@ router.get('/',
 			...pageDefaults,
 			pageTitle: 'Home',
 			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-		<div class="text-body container p-4">
-			${breadcrumb.render()}
-			<div class="text-center text-body container p-4 my-5">
-				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
-					Welcome to my newest version of my ExpressJS Starter site!
-				</div>
-			</div>
-		</div>
-  </div>`
+						<div class="text-body container p-4">
+							${breadcrumb.render()}
+							<div class="text-center text-body container p-4 my-5">
+								<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+									Welcome to my newest version of my ExpressJS Starter site!
+								</div>
+							</div>
+						</div>
+				</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}
@@ -93,7 +167,7 @@ router.get('/view/:table',
 
 		const filteredData = tableData.map( function(x) {
 			const keys = Object.keys(x)
-			const link = `/view/${table}/${x.guid}`
+			const link = table == 'users' ? `/users/profile/${x.guid}`: `/view/${table}/${x.guid}` 
 			for(const key of keys) {
 				x[key] = `<a href="${link}">${x[key]}</a>`
 			}
@@ -172,6 +246,8 @@ router.get('/view/:table/:guid',
 	requiresAuth(),
 	async function (req, res, next) {
 		const { table, guid } = req.params
+		if(table == 'users')
+			return res.redirect('/users/ ')
 		const pageDefaults = req.session.pageDefaults
 		const currentUser = req.session.currentUser
 		const breadcrumbObject = {
@@ -211,10 +287,9 @@ router.get('/view/:table/:guid',
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
 				<div class="row">
-					<form method="post" action="/update/${table}">
+					<form method="post" action="/update/${table}/${tableData[0].guid}">
 						<div class="card bg-glass-primary-3 shadow-lg">
 							<div class="card-body">
-								<input name="guid" style="display:none;" value="${tableData[0].guid}"></input>
 								${cardRows(tableData[0])}
 							</div>
 							<div class="row mx-auto p-3">

@@ -43,9 +43,11 @@ const generateProfileCard = (profileData) => {
 		})
 		return response.join('<hr>')
 	}
+	const options = profileData.options || {}
 	const _profileData = {
 		guid: profileData.guid || String(),
 		editable: profileData.editable || false,
+		higher_role: profileData.higher_role || false ? 'editable' : String(),
 		editable_on_admin: profileData.editable_on_admin || false  ? 'editable' : String(),
 		picture: profileData.picture || String(),
 		name: profileData.name || String(),
@@ -87,7 +89,7 @@ const generateProfileCard = (profileData) => {
 									'Email': `<span id="email" class="${_profileData.editable_on_admin || ''}">${_profileData.email}</span> ${_profileData.email_verified ? '' : ' (not verified) '}`,
 									'Picture URL': `<span id="picture" class="editable">${_profileData.picture}</span>`,
 									'Authentication Method': `${_profileData.sub}`,
-									'Role': `<span id="role">${_profileData.role || 'Default'}</span>`
+									'Role': `<span id="role" data-type="select" data-tag="select" data-options='${String(options.roles || null)}' class="${_profileData.higher_role || ''}">${_profileData.role || 'Default'}</span>`
 								})}
 							</div>
 							${editButtons}
@@ -133,9 +135,19 @@ router.get('/profile/:identifier',
 		const breadcrumb = new Breadcrumb(breadcrumbObj)
 		breadcrumb.addClass('mb-3')
 
+		const role = Math.max(Number(currentUser.role), Number(profileUser.role))
+
+		const rolesFull = req.session.meta.roles
+		const roles = rolesFull.slice(0, role + 1)
+		console.log(`Role (${role + 1}): ${roles}`)
+
 		const profileData = { 
 			...profileUser,
-			editable: currentUser.isAdmin || currentUser.id == profileUser.id,
+			options: {
+				'roles': JSON.stringify(roles)
+			},
+			editable: ( currentUser.role > profileUser.role && currentUser.isAdmin ) || currentUser.id == profileUser.id,
+			higher_role: currentUser.role >= profileUser.role,
 			editable_on_admin: currentUser.isAdmin,
 			role: req.session.meta.roles[Number(profileUser.role)]
 		}

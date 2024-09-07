@@ -153,6 +153,8 @@ class SQLObject {
 		let data = await queryPromise(sqlQuery)
 		this.id = this.table != 'users' ? data.insertId : this.sso_id
 		
+		data = await this.read()
+
 		return this._lastSQLResponse = data
 	}
 //	Read from db and load object properties
