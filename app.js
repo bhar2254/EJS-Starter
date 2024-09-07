@@ -210,8 +210,8 @@ app.use(
 		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
 		const tables = await queryPromise('SHOW TABLES;')
 		const tableList = tables.map(x => ({
-			text: String(x.Tables_in_ejs_starter_test).capitalizeFirstChar(), 
-			link: `/view/${x.Tables_in_ejs_starter_test}`
+			text: String(x[`Tables_in_${process.env.DB_DB}`]).capitalizeFirstChar(), 
+			link: `/view/${x[`Tables_in_${process.env.DB_DB}`]}`
 		}))
 		if(isAdmin) {
 			pageDefaults.navbar = pageDefaults.navbar.concat([{
