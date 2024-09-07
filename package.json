@@ -13,6 +13,7 @@
     "marked": "^14.0.0",
     "morgan": "^1.10.0",
     "mysql2": "^3.11.0",
-    "serve-favicon": "^2.5.0"
+    "serve-favicon": "^2.5.0",
+    "sharp": "^0.33.5"
   }
 }

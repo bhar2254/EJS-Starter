@@ -5,7 +5,8 @@ CREATE TABLE cache (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     refresh_time TIMESTAMP,
     ref TEXT NOT NULL DEFAULT (''),
-    value TEXT NOT NULL DEFAULT ('')
+    value TEXT NOT NULL DEFAULT (''),
+    local_value TEXT NOT NULL DEFAULT ('')
 );
 
 DELIMITER //

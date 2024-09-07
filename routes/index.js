@@ -28,6 +28,10 @@ function createSubset(obj, keys) {
 
 const tableDefinitions = {
 	'meta': ['id','ref','value'],
+	'cache': ['id','refresh_time','ref'],
+	'posts': ['title','subtitle','update_time'],
+	'viewposts': ['name', 'title','subtitle','update_time'],
+	'users': ['role','nickname','name','email','email_verified','exp']
 }
 
 router.get('/signout',
@@ -36,7 +40,6 @@ router.get('/signout',
 		res.redirect('/logout')
 })
 
-/* GET users page. */
 router.post('/create/:table',
 	requiresAuth(),
 	async function (req, res) {
@@ -78,7 +81,6 @@ router.post('/create/:table',
 		return res.redirect(`/view/${table}/${createObject.guid}`)
 })
 
-/* GET users page. */
 router.post('/update/:table/:guid',
 	requiresAuth(),
 	async function (req, res) {
@@ -125,7 +127,32 @@ router.post('/update/:table/:guid',
 		return res.redirect(req.session.returnTo)
 })
 
-/* GET home page. */
+router.get('/delete/:table/:guid',
+	requiresAuth(),
+	async function (req, res) {
+		const { table, guid } = req.params
+		const { role, isAdmin } = req.session.currentUser
+		
+		let deleteObject = { table: table, primaryKey: 'guid', guid: guid }
+		deleteObject = new SQLObject(deleteObject)
+
+		let preventDelete = false
+		const minimum_roles = {
+			'users': 4,
+			'posts': 2,
+			'meta': 5,
+			'cache': 5,
+		}
+		const minimum_role = minimum_roles[table] || Number(req.session.meta.min_admin)
+		if(minimum_role > role && !isAdmin)
+			preventDelete = true
+
+		if(!preventDelete)
+			await deleteObject.destroy()
+
+		return res.redirect(`/view/${table}`)
+})
+
 router.get('/',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
@@ -165,14 +192,14 @@ router.get('/view/:table',
 		const tableObject = new SQLObject({ table: `${table}`, all: true })
 		const tableData = await tableObject.read()
 
-		const filteredData = tableData.map( function(x) {
+		const filteredData = tableData.length ? tableData.map( function(x) {
 			const keys = Object.keys(x)
 			const link = table == 'users' ? `/users/profile/${x.guid}`: `/view/${table}/${x.guid}` 
 			for(const key of keys) {
 				x[key] = `<a href="${link}">${x[key]}</a>`
 			}
 			return createSubset(x, tableDefinitions[table] || Object.keys(x)) 
-		})
+		}): [{empty: 'No Data To Diplay...'}]
 
 		const dataTable = new Table({
 			data: filteredData
@@ -293,7 +320,11 @@ router.get('/view/:table/:guid',
 								${cardRows(tableData[0])}
 							</div>
 							<div class="row mx-auto p-3">
-								<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
+								<div class="btn-group">
+									<a class="editable-toggler btn bh-secondary" href="/view/${table}">Back</a>
+									<a class="editable-toggler btn btn-danger" href="/delete/${table}/${guid}">Delete</a>
+									<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
+								</div>
 								<div class="btn-group">
 									<button type="button" onclick="cancelForm()" class="editable-toggler btn bh-dark-grey" style="display:none;">Cancel</button>
 									<button type="submit" class="editable-toggler btn bh-primary" style="display:none;">Save</button>

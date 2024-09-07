@@ -9,6 +9,7 @@
 const express = require('express')
 const router = express.Router()
 const { Page, Breadcrumb } = require('./util/DOM')
+const { downloadImage } = require('./util/cacheImages')
 const { requiresAuth } = require('express-openid-connect')
 const { SQLObject } = require('./util/sql')
 const { cacheFetch } = require('./util/harper')
@@ -72,7 +73,7 @@ const generateProfileCard = (profileData) => {
 				<div class="col-lg-4">
 					<div class="card bg-glass-primary-3 shadow-lg">
 						<div class="card-body text-center">
-							<img src="${_profileData.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+							<img src="/imgs/profiles/${profileData.guid || ''}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
 							<br>
 							<h5 class="my-3">${_profileData.nickname}</h5>
 							<p class="mb-0">Level ${calculateLevel(_profileData.exp)} (${_profileData.exp} / ${nextLevelExp(_profileData.exp)})</p>
@@ -112,6 +113,8 @@ router.get('/profile/:identifier',
 		const currentUser = req.session.currentUser
 		let identifier = req.params.identifier
 		const apod = await cacheFetch('nasa_apod', `https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}`)
+		
+		downloadImage(apod.url, `./public/imgs/cache`, apod.guid);
 
 		if(identifier === "me")
 			identifier = currentUser.guid
@@ -139,7 +142,6 @@ router.get('/profile/:identifier',
 
 		const rolesFull = req.session.meta.roles
 		const roles = rolesFull.slice(0, role + 1)
-		console.log(`Role (${role + 1}): ${roles}`)
 
 		const profileData = { 
 			...profileUser,
@@ -161,7 +163,7 @@ router.get('/profile/:identifier',
 				append: pageDefaults.header.append + `
 					<style>
 						body {
-							background-image: url('${apod.url}');
+							background-image: url('${process.env.URI}/imgs/cache/${apod.guid}.webp');
 						}
 					</style>`
 			},
