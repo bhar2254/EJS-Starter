@@ -145,7 +145,7 @@ let pageDefaults = {
 			background-repeat: no-repeat;
 			background-size: cover;
 
-			background-image: url('https://apod.nasa.gov/apod/image/2408/AuroraPerseids_Anders_1080.jpg');
+			background-image: url('https://storage.blaineharper.com/api/images?url=https://apod.nasa.gov/apod/image/2408/AuroraPerseids_Anders_1080.jpg');
 			font-family: 'Gotham Narrow', sans-serif;
 		}
 		</style>`
