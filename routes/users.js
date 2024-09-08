@@ -163,7 +163,7 @@ router.get('/profile/:identifier',
 				append: pageDefaults.header.append + `
 					<style>
 						body {
-							background-image: url('${process.env.URI}/imgs/cache/${apod.guid}.webp');
+							background-image: url('https://storage.blaineharper.com/api/images?url=${process.env.URI}/imgs/cache/${apod.guid}.webp');
 						}
 					</style>`
 			},
