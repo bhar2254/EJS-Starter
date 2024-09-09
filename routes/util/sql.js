@@ -17,6 +17,9 @@ module exports
 	SQLObject: SQLObject
 */
 
+const datetime_format = '%Y-%m-%dT%H:%i'
+const date_format = '%Y-%m-%d'
+
 require('dotenv').config()
 
 DB = require('../../db/sql_connect')
