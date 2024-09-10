@@ -61,14 +61,15 @@ const safeAssign = (valueFn, catchFn) => {
 const cacheFetch = async (ref, fetchUrl) => {
 	const cache = new SQLObject({table: 'cache', primaryKey: 'ref', ref: ref})
 	const data = await cache.read()
+	let response = data.length ? JSON.stringify(data[0].value) : '{}'
 	if( data == 0 || data.length == 0 ){
 		const fetchData = await fetch(fetchUrl)
-		console.log(await fetchData)
-		await cache.create({
-			value: JSON.stringify(fetchData).replaceAll('\"','\\\"').replace(/(\r\n|\n|\r)/gm, '')
-		})
+		const string = JSON.stringify(fetchData)
+		response = string.replaceAll('\\n','').replaceAll('\\r','').replaceAll('\"','\\\"').trim()
+		await cache.create({ value: response})
 	}
-	return JSON.parse(cache.value.replaceAll("\\\"","\""))
+	response = { ...JSON.parse(String(cache.value).replaceAll('\\\"','\"').trim()), guid: cache.guid }
+	return response
 }
 
 // 	Export functions for later use
