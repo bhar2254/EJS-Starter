@@ -4,7 +4,7 @@
 */	
 
 //	required packages
-// 	npm install sharp axios express express-session express-openid-connect path cors dotenv morgan cluster node:process cookie-parser
+// 	npm install sharp axios express express-session express-openid-connect ejs path cors dotenv marked mysql2 morgan cluster node:process cookie-parser
 const express = require('express')
 const session = require('express-session')
 const { auth } = require('express-openid-connect')
