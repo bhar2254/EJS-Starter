@@ -9,6 +9,4 @@
 .env
 .env.dev
 
-node_modules/*
-
-public/*
+node_modules

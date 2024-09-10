@@ -166,7 +166,6 @@ class Card extends HtmlElement {
     }
 }
 
-// FormInput({[tag, type, label, pattern, options, value, width, placeholder]})
 class FormInput extends HtmlElement {
     static inputGroup = (inputArr) => {
 
@@ -280,14 +279,12 @@ class FormInput extends HtmlElement {
     }
 }
 
-// Form({id, fields, method, action})
 class Form extends HtmlElement {
     constructor(args) {
         super(args)
         this._args = { ...args }
         this.id = this._args.id || 'page_form'
         this.form_html = ''
-        this.hideSubmit = this._args.hideSubmit || false
         this.field_length = this._args.fields ? this._args.fields.length : 0
         this.method = this._args.method || 'GET'
         this.action = this._args.action || ''
@@ -318,36 +315,23 @@ class Form extends HtmlElement {
             const formInput = new FormInput(each)
             form_html += formInput.render()
         }
-        const submit = !this.hideSubmit ? `<button form="${this.id}" type="submit" class="btn bh-primary">Submit</button>`: ''
         return this.form_html = form_html + `
-                    ${submit}
+                    <button form="${this.id}" type="submit" class="btn bh-primary">Submit</button>
                 </div>
             </form>`
     }
 }
 
-//     Modal({ id, title, body, footer, [trigger { style, text }]})
 class Modal extends HtmlElement {
-    static standardButtons = {
-        'close': (args) => {
-            return `<button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>`
-        },
-        'save': (args) => {
-            return `<button type='button' class='btn bh-primary'>Save</button>`
-        },
-        'submit': (args) => {
-            return `<button type='submit' form='${args.form}' class='btn bh-primary'>Submit</button>`
-        },
-    }
     constructor(args) {
         super(args)
         this.id = args.id
         this.title = args.title
         this.body = args.body
-        if(args.buttons)
-            this.buttons = args.buttons.map(x => Modal.standardButtons[x.type](x.args || null)).join(' ')
-        this.footer = args.footer || this.buttons || `${Modal.standardButtons.close()} ${Modal.standardButtons.save()}`
-
+        this.footer = args.footer || args.buttons || `
+                    <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+                    <button type='button' class='btn bh-primary'>Save</button>
+        `
         this.trigger = {
             style: args.trigger ? args.trigger.style : 'primary',
             text: args.trigger ? args.trigger.text : 'Trigger Modal'
@@ -375,24 +359,28 @@ class Modal extends HtmlElement {
         this._trigger = trigger
     }
     get trigger() {
-        return `<button type='button' class='btn bh-${this._trigger.style}' data-bs-toggle='modal' data-bs-target='#${this.id}'>
+        return `
+        <button type='button' class='btn bh-${this._trigger.style}' data-bs-toggle='modal' data-bs-target='#${this.id}'>
             ${this._trigger.text}
-        </button>`
+        </button>
+        `
     }
     render() {
-        return `<div id='${this.id}' class='modal' tabindex='-1'>
+        return `
+        ${this.trigger}
+        <div id='${this.id}' class='modal' tabindex='-1'>
             <div class='modal-dialog'>
                 <div class='modal-content'>
-                    <div class='modal-header'>
-                        <h5 class='modal-title'>${this.title}</h5>
-                        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-                    </div>
-                    <div class='modal-body'>
-                        <p>${this.body}</p>
-                    </div>
-                    <div class='modal-footer'>
-                        ${this.footer}
-                    </div>
+                <div class='modal-header'>
+                    <h5 class='modal-title'>${this.title}</h5>
+                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                </div>
+                <div class='modal-body'>
+                    <p>${this.body}</p>
+                </div>
+                <div class='modal-footer'>
+                    ${this.footer}
+                </div>
                 </div>
             </div>
         </div>
