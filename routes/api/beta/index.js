@@ -22,3 +22,15 @@ router.get('/status',
 		res.send({'status':200})
 	}
 )
+
+/* GET users page. */
+router.post('/update/:table/:guid',
+	requiresAuth(),
+	async function (req, res) {
+		const { table, guid } = req.params
+		let updateObject = { table: table, primaryKey: 'guid', guid: guid }
+		updateObject = new SQLObject(updateObject)
+		console.log({...req.body})
+		await updateObject.update()
+		return res.redirect(req.session.returnTo)
+})

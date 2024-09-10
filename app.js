@@ -15,10 +15,15 @@ const cluster = require('cluster')
 const process = require('node:process')
 const cookieParser = require('cookie-parser')
 const { Page } = require('./routes/util/DOM')
-const { SQLObject } = require('./routes/util/sql')
+const { SQLObject, queryPromise } = require('./routes/util/sql')
 const { consoleColors } = require('./routes/util/harper')
 const { applyCSSTheme } = require('./routes/util/themes')
+const { downloadImage } = require('./routes/util/cacheImages')
 require('dotenv').config()
+
+String.prototype.capitalizeFirstChar = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1)
+}
 
 //	setting local env vars
 const DEBUG = process.env.DEBUG || false
@@ -82,6 +87,7 @@ const footer = `</main>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.7.0.js" crossorigin="anonymous"></script>
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+	<script src="/js/jQuery.dirty.js"></script>
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -110,6 +116,15 @@ const footer = `</main>
 			document.documentElement.scrollTop = 0
 		}
 	</script>
+	<script>
+		$(document).ready(function() {
+			$('form').each(function() {
+				$(this).dirty({
+					preventLeaving: true
+				});
+			});
+		});
+	</script>
 </body>
 </html>`
 
@@ -130,7 +145,7 @@ let pageDefaults = {
 			background-repeat: no-repeat;
 			background-size: cover;
 
-			background-image: url('/images/ihcc/ihcc_lake.jpg');
+			background-image: url('https://storage.blaineharper.com/api/images?url=https://apod.nasa.gov/apod/image/2408/AuroraPerseids_Anders_1080.jpg');
 			font-family: 'Gotham Narrow', sans-serif;
 		}
 		</style>`
@@ -149,8 +164,9 @@ const checkForAccount = async (oidc) => {
 		...oidc.user 
 	})
 	const data = await user.read()
-	if(data == 0 || data.length == 0)
+	if(data == 0 || data.length == 0) {
 		await user.create()
+	}
 	const response = await user.read()
 	return response[0]
 }
@@ -203,68 +219,34 @@ app.use(
 			}
 		})
 
-		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
-		if(isAdmin)
-			pageDefaults.navbar.push(
-			{
-				text: 'Admin Center',
+		const currentUser = req.session.currentUser
+		const { min_admin } = req.session.meta
+		const { DB_DB } = process.env
+
+		downloadImage(currentUser.picture, `./public/imgs/profiles`, currentUser.guid)
+
+		const isAdmin = currentUser.isAdmin = min_admin <= currentUser.role
+		const tables = await queryPromise('SHOW TABLES;')
+		const tableList = tables.map(x => ({
+			text: String(x[`Tables_in_${DB_DB}`]).capitalizeFirstChar(), 
+			link: `/view/${x[`Tables_in_${DB_DB}`]}`
+		}))
+		if(isAdmin) {
+			pageDefaults.navbar = pageDefaults.navbar.concat([{
+				text: 'Admin',
 				links: [{
-					text: 'Users',
-					link: '/view/users',
-				},{
-					text: 'Vehicles',
-					link: '/view/vehicles',
-				},{
-					text: 'Permits',
-					link: '/view/permits',
-				},{
-					text: 'Tickets',
-					link: '/view/tickets',
-				},{
-					text: 'hr'
-				},{
-					text: 'Settings',
-					link: '/view/meta',
-				},{
-					text: 'hr'
-				},{
-					text: 'Admin Guide',
-					link: '/read/admin_guide',
-				},{
-					text: 'Readme',
-					link: '/read/readme',
-				},]
-			})
+					text: 'Admin Center',
+					link: '/admin'
+				}, ...tableList]
+			}])
+		}
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
-			text: `<i class="fa-solid fa-bell"></i>`,
-			links: notificaitonLinks
+			text: `<img src="/imgs/profiles/${currentUser.guid || ''}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
+			link: '/users/profile/me'
 		},{
-			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
-			link: '/users/me'
-		},{
-			text: req.session.currentUser.name,
-			links: [{
-				text: 'Account',
-				link: '/users/me',
-			},{
-				text: 'Vehicles',
-				link: '/view/vehicles/me',
-			},{
-				text: 'Permits',
-				link: '/view/permits/me',
-			},{
-				text: 'Tickets',
-				link: '/view/tickets/me',
-			},{
-				text: 'hr',
-			},{
-				text: 'Help',
-				link: '/read/help',
-			},{
-				text: 'Regulations',
-				link: '/read/regulations',
-			}]
+			text: 'My Profile',
+			link: '/users/profile/me'
 		},{
 			text: 'Logout',
 			link: '/signout'
@@ -282,7 +264,7 @@ app.use(
 
 const minAdmin = (req, res, next) => {
 	if(req.session.meta.min_admin > req.session.currentUser.role)
-		return res.redirect('/users/me')
+		return res.redirect('/users/profile/me')
 	return next()
 }
 

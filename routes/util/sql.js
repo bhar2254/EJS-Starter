@@ -156,6 +156,8 @@ class SQLObject {
 		let data = await queryPromise(sqlQuery)
 		this.id = this.table != 'users' ? data.insertId : this.sso_id
 		
+		data = await this.read()
+
 		return this._lastSQLResponse = data
 	}
 //	Read from db and load object properties
@@ -264,7 +266,7 @@ class SQLObject {
 			await this.initialize()
 
 //		data = await queryPromise(...,{}) 
-		let sqlQuery = `DELETE FROM ${this._table} WHERE ${this._key} = "${this._id}";`
+		let sqlQuery = `DELETE FROM ${this._table} WHERE ${this._primaryKey} = "${this[this._primaryKey]}";`
 		await queryPromise(sqlQuery)
 		this._lastSQLQuery = sqlQuery
 		console.log('you can can delete this object from memory ! goodbye')

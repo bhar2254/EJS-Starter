@@ -63,12 +63,12 @@ const cacheFetch = async (ref, fetchUrl) => {
 	const data = await cache.read()
 	if( data == 0 || data.length == 0 ){
 		const fetchData = await fetch(fetchUrl)
-		console.log(await fetchData)
 		await cache.create({
 			value: JSON.stringify(fetchData).replaceAll('\"','\\\"').replace(/(\r\n|\n|\r)/gm, '')
 		})
 	}
-	return JSON.parse(cache.value.replaceAll("\\\"","\""))
+	const response = { ...JSON.parse(cache.value.replaceAll("\\\"","\"")), guid: cache.guid }
+	return response
 }
 
 // 	Export functions for later use

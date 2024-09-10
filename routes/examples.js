@@ -187,22 +187,22 @@ router.get('/parallax',
                     <div class="p-4">
                         ${breadcrumb.render()}
                     </div>
-                    ${parallax.render({height: 75, link: `https://api.nasa.gov/EPIC/archive/natural/2019/05/30/png/epic_1b_20190530011359.png?api_key=${process.env.NASA_API_KEY}`})}
+                    ${parallax.render({height: 75, link: `https://storage.blaineharper.com/api/images?url=https://api.nasa.gov/EPIC/archive/natural/2019/05/30/png/epic_1b_20190530011359.png?api_key=${process.env.NASA_API_KEY}`})}
                     <div class="text-center mt-5">
                         <h1>Astronomy Picture of the Day</h1>
                     </div>
                     ${parallaxGroup({height: 100, ...apod})}
                     ${parallaxGroup({flipped: true, height: 50, title: 'Webb Captures the Cartwheel Galaxy', 
                         explanation: `NASA’s James Webb Space Telescope has peered into the chaos of the Cartwheel Galaxy, revealing new details about star formation and the galaxy’s central black hole. Webb’s powerful infrared gaze produced this detailed image of the Cartwheel and two smaller companion galaxies against a backdrop of many other galaxies. This image provides a new view of how the Cartwheel Galaxy has changed over billions of years.`,
-                        url: `https://science.nasa.gov/wp-content/uploads/2023/09/stsci-01g8jzq6gwxhex15pyy60wdrsk-2.png?w=2048&format=webp` 
+                        url: `https://storage.blaineharper.com/api/images?url=https://science.nasa.gov/wp-content/uploads/2023/09/stsci-01g8jzq6gwxhex15pyy60wdrsk-2.png?w=2048&format=webp` 
                     })}
                     ${parallaxGroup({title: 'Revealing the Milky Way’s Center', 
                         explanation: `The center of our Milky Way galaxy is hidden from the prying eyes of optical telescopes by clouds of obscuring dust and gas. But in this stunning vista, NASA's Spitzer Space Telescope's infrared cameras penetrate much of the dust, revealing the stars of the crowded galactic center region.`,
-                        url: `https://science.nasa.gov/wp-content/uploads/2023/09/ssc2006-02a-0.jpg?w=2048&format=webp` 
+                        url: `https://storage.blaineharper.com/api/images?url=https://science.nasa.gov/wp-content/uploads/2023/09/ssc2006-02a-0.jpg?w=2048&format=webp` 
                     })}
                     ${parallaxGroup({height: 100, flipped: true, title: 'Centaurus A', 
                         explanation: `NASA's Stratospheric Observatory for Infrared Astronomy (SOFIA) observed magnetic fields showin in this composite image of Centaurus A. They're shown as streamlines over an image of the galaxy taken at visible and submillimeter wavelengths by the European Southern Observatory and Atacama Pathfinder Experiment (orange), X-ray wavelengths from NASA's Chandra X-Ray observatory (blue) and infrared from NASA's Spitzer Space Telescope (dark red).`,
-                        url: `https://science.nasa.gov/wp-content/uploads/2023/09/cena-lic-lp-nature-cropped.jpg?w=2048&format=webp` 
+                        url: `https://storage.blaineharper.com/api/images?url=https://science.nasa.gov/wp-content/uploads/2023/09/cena-lic-lp-nature-cropped.jpg?w=2048&format=webp` 
                     })}
                 </div>`
 		})

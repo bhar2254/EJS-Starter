@@ -27,11 +27,11 @@ function createSubset(obj, keys) {
 }
 
 const tableDefinitions = {
-	'users': ['id', 'campus_id', 'name','email','role'],
-	'vehicles': ['vehicles_id','vehicle_title','color','state','plate', 'permits_id'],
-	'permits': ['permits_id', 'permit_type','permit_num','expire','vehicles_id'],
-	'tickets': ['tickets_id','ticket_type','user_id','location'],
 	'meta': ['id','ref','value'],
+	'cache': ['id','refresh_time','ref'],
+	'posts': ['title','subtitle','update_time'],
+	'viewposts': ['name', 'title','subtitle','update_time'],
+	'users': ['role','nickname','name','email','email_verified','exp']
 }
 
 router.get('/signout',
@@ -40,19 +40,119 @@ router.get('/signout',
 		res.redirect('/logout')
 })
 
-/* GET users page. */
-router.post('/update/:table',
+router.post('/create/:table',
 	requiresAuth(),
 	async function (req, res) {
 		const { table } = req.params
-		let updateObject = { table: table, primaryKey: 'guid', guid: req.body.guid }
+		const { role, id } = req.session.currentUser
+
+		const setDefaults = {
+			'users': {
+
+			},
+			'posts': {
+				'author_id': id
+			},
+			'meta': {
+
+			},
+			'cache': {
+
+			},
+		}
+		const defaults = setDefaults[table] || {}
+
+		let createObject = { table: table, ...req.body, ...defaults }
+		createObject = new SQLObject(createObject)
+
+		let preventCreate = false
+		const minimum_roles = {
+			'users': 4,
+			'posts': 2,
+			'meta': 5,
+			'cache': 5,
+		}
+		if(minimum_roles[table] > role)
+			preventCreate = true
+
+		if(!preventCreate)
+			await createObject.create()
+
+		return res.redirect(`/view/${table}/${createObject.guid}`)
+})
+
+router.post('/update/:table/:guid',
+	requiresAuth(),
+	async function (req, res) {
+		const { table, guid } = req.params
+		const currentUser = req.session.currentUser
+		let updateObject = { table: table, primaryKey: 'guid', guid: guid, ...req.body }
 		updateObject = new SQLObject(updateObject)
-		console.log({...req.body})
-		await updateObject.update()
+		const data = await updateObject.read()
+
+		let preventUpdate = false
+		const tableCallbacks = {
+			'users': () => {
+				//	reset the role if user doesn't meet criteria
+				if(!currentUser.isAdmin || Number(currentUser.role) <= Number(updateObject.role))
+					updateObject.role = updateObject._role
+			},
+			'posts': () => {
+				//	check if you're the owner or an admin
+				const hasPrivileges = currentUser.isAdmin
+				const isOwner = currentUser.users_id == updateObject.author_id
+				if(!hasPrivileges && !isOwner)
+					preventUpdate = true
+			},
+			'meta': () => {
+				//	refresh the meta if the user has privileges
+				const min_role = 5 // a higher than normal minimum. consider scopes lates
+				if(currentUser.role < min_role)
+					preventUpdate = true
+				if(!preventUpdate) {
+					req.session.meta[updateObject.ref] = JSON.parse(updateObject.value)
+				}
+			}
+		}
+		if(tableCallbacks[table])
+			tableCallbacks[table]()
+
+		if(!preventUpdate) {
+			await updateObject.update()
+
+			if(guid == currentUser.guid)
+				req.session.currentUser = updateObject
+		}
+
 		return res.redirect(req.session.returnTo)
 })
 
-/* GET home page. */
+router.get('/delete/:table/:guid',
+	requiresAuth(),
+	async function (req, res) {
+		const { table, guid } = req.params
+		const { role, isAdmin } = req.session.currentUser
+		
+		let deleteObject = { table: table, primaryKey: 'guid', guid: guid }
+		deleteObject = new SQLObject(deleteObject)
+
+		let preventDelete = false
+		const minimum_roles = {
+			'users': 4,
+			'posts': 2,
+			'meta': 5,
+			'cache': 5,
+		}
+		const minimum_role = minimum_roles[table] || Number(req.session.meta.min_admin)
+		if(minimum_role > role && !isAdmin)
+			preventDelete = true
+
+		if(!preventDelete)
+			await deleteObject.destroy()
+
+		return res.redirect(`/view/${table}`)
+})
+
 router.get('/',
 	async function (req, res, next) {
 		const pageDefaults = req.session.pageDefaults
@@ -63,18 +163,15 @@ router.get('/',
 			...pageDefaults,
 			pageTitle: 'Home',
 			body: `<div class='m-5 mx-auto bg-glass bg-gradient shadow-lg bh-left-bar-secondary col-lg-9 col-md-12 col-sm-12'>
-		<div class="text-body container p-4">
-			${breadcrumb.render()}
-			<div class="text-center text-body container p-4 my-5">
-				<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
-					Welcome to Parking on Hills v2!
-					<br>
-					<br>
-					Due to project complexity and flexibility, we've decided to move PoH from its original form to this modern version. Using a new foundation, we're able to integrate PoH with other Indian Hills applications to speed up development and improve our features!
-				</div>
-			</div>
-		</div>
-  </div>`
+						<div class="text-body container p-4">
+							${breadcrumb.render()}
+							<div class="text-center text-body container p-4 my-5">
+								<div class="mx-auto col-lg-4 col-md-6 col-sm-11 col-xs-12">
+									Welcome to my newest version of my ExpressJS Starter site!
+								</div>
+							</div>
+						</div>
+				</div>`
 		})
 		res.render('pages/blank', { content: page.render() })
 	}
@@ -95,17 +192,14 @@ router.get('/view/:table',
 		const tableObject = new SQLObject({ table: `${table}`, all: true })
 		const tableData = await tableObject.read()
 
-
-		const filteredData = tableData.length ? 
-			tableData.map( function(x) {
-				const keys = Object.keys(x)
-				const link = `/view/${table}/${x.guid}`
-				for(const key of keys) {
-					x[key] = `<a href="${link}">${x[key]}</a>`
-				}
-				return createSubset(x, tableDefinitions[table] || Object.keys(x)) 
-			}):
-			[{Empty:`No Data to Display!`}]
+		const filteredData = tableData.length ? tableData.map( function(x) {
+			const keys = Object.keys(x)
+			const link = table == 'users' ? `/users/profile/${x.guid}`: `/view/${table}/${x.guid}` 
+			for(const key of keys) {
+				x[key] = `<a href="${link}">${x[key]}</a>`
+			}
+			return createSubset(x, tableDefinitions[table] || Object.keys(x)) 
+		}): [{empty: 'No Data To Diplay...'}]
 
 		const dataTable = new Table({
 			data: filteredData
@@ -135,8 +229,7 @@ router.get('/view/:table/me',
 	requiresAuth(),
 	async function (req, res, next) {
 		const { table } = req.params
-		const { currentUser, pageDefaults } = req.session
-		console.log(`Current user logged in: ${JSON.stringify(currentUser)}`)
+		const pageDefaults = req.session.pageDefaults
 		const breadcrumbObject = {
 			'Home': '/'
 		}
@@ -144,12 +237,10 @@ router.get('/view/:table/me',
 		breadcrumbObject['Me'] = null
 		const breadcrumb = new Breadcrumb(breadcrumbObject)
 
-		const tableObject = new SQLObject({ table: `${table}`, primaryKey: `users_id`, users_id: currentUser.id })
+		const tableObject = new SQLObject({ table: `${table}`, primaryKey: `users_id`, id: req.session.currentUser.id })
 		const tableData = await tableObject.read()
 
-		const filteredData = tableData.length ?
-			tableData.map( x => createSubset(x, tableDefinitions[table] || Object.keys(x)) ) :
-			[{Empty:`No Data to Display!`}]
+		const filteredData = tableData.map( x => createSubset(x, tableDefinitions[table] || Object.keys(x)) )
 
 		const dataTable = new Table({
 			data: filteredData
@@ -182,6 +273,8 @@ router.get('/view/:table/:guid',
 	requiresAuth(),
 	async function (req, res, next) {
 		const { table, guid } = req.params
+		if(table == 'users')
+			return res.redirect('/users/ ')
 		const pageDefaults = req.session.pageDefaults
 		const currentUser = req.session.currentUser
 		const breadcrumbObject = {
@@ -221,14 +314,17 @@ router.get('/view/:table/:guid',
 			${breadcrumb.render()}
 			<div class="text-center text-body container p-4 my-5">
 				<div class="row">
-					<form method="post" action="/update/${table}">
+					<form method="post" action="/update/${table}/${tableData[0].guid}">
 						<div class="card bg-glass-primary-3 shadow-lg">
 							<div class="card-body">
-								<input name="guid" style="display:none;" value="${tableData[0].guid}"></input>
 								${cardRows(tableData[0])}
 							</div>
 							<div class="row mx-auto p-3">
-								<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
+								<div class="btn-group">
+									<a class="editable-toggler btn bh-secondary" href="/view/${table}">Back</a>
+									<a class="editable-toggler btn btn-danger" href="/delete/${table}/${guid}">Delete</a>
+									<button type="button" onclick="toggleForm()" class="editable-toggler btn bh-primary">Edit</button>
+								</div>
 								<div class="btn-group">
 									<button type="button" onclick="cancelForm()" class="editable-toggler btn bh-dark-grey" style="display:none;">Cancel</button>
 									<button type="submit" class="editable-toggler btn bh-primary" style="display:none;">Save</button>
