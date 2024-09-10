@@ -4,7 +4,6 @@
 */	
 
 //	required packages
-// 	npm install sharp axios express express-session express-openid-connect path cors dotenv morgan cluster node:process cookie-parser
 const express = require('express')
 const session = require('express-session')
 const { auth } = require('express-openid-connect')
@@ -64,7 +63,7 @@ app.use(session({
 }))
 
 const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"/>
-<link rel="stylesheet" href="/stylesheets/bs.add.css"/>
+<link rel="stylesheet" href="https://bhar2254.github.io//src/css/ejs-starter/bs.add.css"/>
 <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
 
 <link rel="icon" type="image/x-icon" href="https://blaineharper.com/assets/favicon.ico">
@@ -75,7 +74,7 @@ const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/b
 
 const footer = `</main>
 	<footer id="mainFooter" class="shadow-lg p-2 text-center bg-glass mx-auto sticky-footer">
-		<span id="footerText">2024 © ${process.env.COPYRIGHT}</span>
+		<span id="footerText">2024 © BlaineHarper.com</span>
 	</footer>
 	<button class='btn rounded-circle'onclick="topFunction()" id="topButton" title="Go to top">Top</button>
 	
@@ -117,6 +116,7 @@ let pageDefaults = {
 	header: {
 		dark: true,
 		append: `${headerLinks}
+		${applyCSSTheme('003B6F')}
 		<style>
 		body {
 			background-repeat: no-repeat;
@@ -130,13 +130,13 @@ let pageDefaults = {
 			background-repeat: no-repeat;
 			background-size: cover;
 
-			background-image: url('/images/ihcc/ihcc_lake.jpg');
+			background-image: url('https://apod.nasa.gov/apod/image/2408/AuroraPerseids_Anders_1080.jpg');
 			font-family: 'Gotham Narrow', sans-serif;
 		}
 		</style>`
 	},
-	siteTitle: process.env.SHORT_TITLE,
-	brand: process.env.SITE_TITLE,
+	siteTitle: `EJS Starter`,
+	brand: `BlaineHarper.com`,
 	footer: footer
 }
 
@@ -160,24 +160,6 @@ const examplePages = {
 	'typography': 'Typography'
 }
 
-const checkNotifications = async (currentUser) => {
-	const notificationsTable = new SQLObject({
-		table: 'Notifications', 
-		primaryKey: 'users_id', 
-		users_id: currentUser.id
-	})
-    const notifications = await notificationsTable.read({
-        conditions: {
-            'AND user_id': [`= "${currentUser.id}"`],
-            'OR user_id': [`= 0`]
-        },
-        additional: "ORDER BY `notifications_id` DESC"
-    })
-	if(notifications.length)
-    	return notifications
-	return []
-}
-
 app.use(
 	async function(req, res, next) {
 	if(typeof req.session.meta == 'undefined'){
@@ -188,83 +170,42 @@ app.use(
 		req.session.meta = metaObj
 	}
 
-	pageDefaults.navbar = []
+	pageDefaults.navbar = [{
+		text: 'About',
+		links: [{
+			text: 'Developer',
+			link: '/about/developer'
+		},{
+			text: 'Other Projects',
+			link: '/about/projects'
+		}],
+	},{
+		text: 'Examples',
+		links: Object.keys(examplePages).map(x => { 
+			return { text: examplePages[x], link: `/examples/${x}` }
+		}),
+	},{
+		text: 'Posts',
+		link: '/posts',
+	}]
 	const isAuth = req.oidc.isAuthenticated()
-
 	if(isAuth){
 		if(!req.session.currentUser)
 			req.session.currentUser = await checkForAccount(req.oidc)
-		const currentUser = req.session.currentUser
-		const notifications = await checkNotifications(currentUser)
-		const notificaitonLinks = notifications.map(x => {
-			return {
-				text: x.message,
-				link: `/view/notifications/${x.guid}`,
-			}
-		})
 
 		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
 		if(isAdmin)
-			pageDefaults.navbar.push(
-			{
-				text: 'Admin Center',
-				links: [{
-					text: 'Users',
-					link: '/view/users',
-				},{
-					text: 'Vehicles',
-					link: '/view/vehicles',
-				},{
-					text: 'Permits',
-					link: '/view/permits',
-				},{
-					text: 'Tickets',
-					link: '/view/tickets',
-				},{
-					text: 'hr'
-				},{
-					text: 'Settings',
-					link: '/view/meta',
-				},{
-					text: 'hr'
-				},{
-					text: 'Admin Guide',
-					link: '/read/admin_guide',
-				},{
-					text: 'Readme',
-					link: '/read/readme',
-				},]
+			pageDefaults.navbar.push({
+				text: 'Admin',
+				link: '/admin'
 			})
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
-			text: `<i class="fa-solid fa-bell"></i>`,
-			links: notificaitonLinks
-		},{
 			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
 			link: '/users/me'
 		},{
-			text: req.session.currentUser.name,
-			links: [{
-				text: 'Account',
-				link: '/users/me',
-			},{
-				text: 'Vehicles',
-				link: '/view/vehicles/me',
-			},{
-				text: 'Permits',
-				link: '/view/permits/me',
-			},{
-				text: 'Tickets',
-				link: '/view/tickets/me',
-			},{
-				text: 'hr',
-			},{
-				text: 'Help',
-				link: '/read/help',
-			},{
-				text: 'Regulations',
-				link: '/read/regulations',
-			}]
+			text: 'My Profile',
+			link: '/users/me'
 		},{
 			text: 'Logout',
 			link: '/signout'

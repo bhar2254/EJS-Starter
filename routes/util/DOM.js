@@ -434,7 +434,7 @@ class Table extends HtmlElement {
         content.push('<tr>')
         header.forEach(key => {
             content.push(`
-                <th>${key.replace('_', ' ').replace('-', ' ').split().map(x => x.capitalizeFirstChar())}</td>
+                <th>${key.replace('_', ' ').replace('-', ' ').capitalizeFirstChar()}</td>
             `)
         })
         content.push('</tr>')
