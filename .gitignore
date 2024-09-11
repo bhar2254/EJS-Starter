@@ -10,3 +10,4 @@
 .env.dev
 
 node_modules
+public/images/*

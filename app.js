@@ -63,7 +63,7 @@ app.use(session({
 }))
 
 const headerLinks = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"/>
-<link rel="stylesheet" href="https://bhar2254.github.io/src/css/ejs-starter/bs.add.css"/>
+<link rel="stylesheet" href="https://bhar2254.github.io/src/css/bs.add.css"/>
 <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.css" rel="stylesheet">
 
 <link rel="icon" type="image/x-icon" href="https://blaineharper.com/assets/favicon.ico">
@@ -87,7 +87,7 @@ const footer = `</main>
 	<script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-colvis-2.4.1/b-html5-2.4.1/cr-1.7.0/r-2.5.0/rr-1.4.1/sc-2.2.0/sb-1.5.0/sp-2.2.0/sl-1.7.0/datatables.min.js"></script>
 
 	<script src="https://kit.fontawesome.com/5496aaa581.js" crossorigin="anonymous"></script>
-	<script src="${process.env.URI}/js/formToggler.js"></script>
+	<script src="/js/formToggler.js"></script>
 	<script>
 		// Get the button
 		let buttonToTop = document.getElementById("topButton")
@@ -202,10 +202,10 @@ app.use(
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
 			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
-			link: '/users/me'
+			link: '/users/profile/me'
 		},{
 			text: 'My Profile',
-			link: '/users/me'
+			link: '/users/profile/me'
 		},{
 			text: 'Logout',
 			link: '/signout'
