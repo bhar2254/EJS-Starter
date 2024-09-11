@@ -16,7 +16,8 @@ const { cacheFetch } = require('./util/harper')
 
 const authenticationMethods = {
 	'google-oauth2': 'Google',
-	'github': 'GitHub'
+	'github': 'GitHub',
+	'auth0': 'Auth0',
 }
 
 const nextLevelExp = (exp) => {
@@ -57,7 +58,9 @@ const generateProfileCard = (profileData) => {
 		email_verified: profileData.email_verified || false,
 		exp: profileData.exp || 0,
 		id: profileData.id || 0,
-		sub: profileData.sub || false ? authenticationMethods[String(profileData.sub).split('|')[0]] : String(),
+		sub: profileData.sub ?
+			authenticationMethods[String(profileData.sub).split('|')[0]] || profileData.sub : 
+			String(),
 		role: profileData.role || 'Default'
 	}
 	const editButtons = _profileData.editable ? 
@@ -73,7 +76,7 @@ const generateProfileCard = (profileData) => {
 				<div class="col-lg-4">
 					<div class="card bg-glass-primary-3 shadow-lg">
 						<div class="card-body text-center">
-							<img src="/images/profiles/${profileData.guid || ''}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+							<img src="/images/profile/${profileData.guid || ''}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
 							<br>
 							<h5 class="my-3">${_profileData.nickname}</h5>
 							<p class="mb-0">Level ${calculateLevel(_profileData.exp)} (${_profileData.exp} / ${nextLevelExp(_profileData.exp)})</p>

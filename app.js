@@ -17,6 +17,7 @@ const { Page } = require('./routes/util/DOM')
 const { SQLObject } = require('./routes/util/sql')
 const { consoleColors } = require('./routes/util/harper')
 const { applyCSSTheme } = require('./routes/util/themes')
+const { downloadImage } = require('./routes/util/cacheImages')
 require('dotenv').config()
 
 //	setting local env vars
@@ -152,6 +153,7 @@ const checkForAccount = async (oidc) => {
 	if(data == 0 || data.length == 0)
 		await user.create()
 	const response = await user.read()
+	await downloadImage(user.picture, `./public/images/profile`, user.guid)
 	return response[0]
 }
 
@@ -201,7 +203,7 @@ app.use(
 			})
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
-			text: `<img src="${req.session.currentUser.picture}" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
+			text: `<img src="/images/profile/${req.session.currentUser.guid}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
 			link: '/users/profile/me'
 		},{
 			text: 'My Profile',
