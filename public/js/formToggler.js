@@ -1,3 +1,4 @@
+
 const toggleForm = () => {
     $(document).ready(function() {
         $('.editable-toggler').toggle()
@@ -82,5 +83,11 @@ const cancelForm = () => {
 $(document).ready(function() {
     $('.marked-content').each(function() {
         $(this).html(marked.parse($(this).html()))
+    });
+        
+    $('form').each(function() {
+        $(this).dirty({
+            preventLeaving: true
+        });
     });
 });
