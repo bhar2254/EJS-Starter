@@ -163,6 +163,25 @@ const examplePages = {
 	'typography': 'Typography'
 }
 
+const checkNotifications = async (currentUser) => {
+	const notificationsTable = new SQLObject({
+		table: 'notifications', 
+		primaryKey: 'users_id', 
+		users_id: currentUser.id
+	})
+    const notifications = await notificationsTable.read({
+        conditions: {
+            'AND user_id': [`= "${currentUser.id}"`],
+            'OR user_id': [`= 0`]
+        },
+        additional: "ORDER BY `notifications_id` DESC"
+    })
+	if(notifications.length) {
+    		return notifications
+	}
+	return []
+}
+
 app.use(
 	async function(req, res, next) {
 		
