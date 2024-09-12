@@ -165,6 +165,7 @@ const examplePages = {
 
 app.use(
 	async function(req, res, next) {
+		
 	if(typeof req.session.meta == 'undefined'){
 		const meta = new SQLObject({table: 'meta', all: true})
 		const data = await meta.read()
@@ -172,6 +173,26 @@ app.use(
 		data.map(x => metaObj[x.ref] = JSON.parse(x.value))
 		req.session.meta = metaObj
 	}
+		
+	const currentUser = req.session.currentUser
+	const notifications = await checkNotifications(currentUser)
+	const notificaitonLinks = notifications.map(x => {
+		return {
+			text: x.message,
+			link: `/view/notifications/${x.guid}`,
+		}
+	})
+	const { min_admin } = req.session.meta
+	const { DB_DB } = process.env
+
+	downloadImage(currentUser.picture, `./public/images/profiles`, currentUser.guid)
+
+	const isAdmin = currentUser.isAdmin = min_admin <= currentUser.role
+	const tables = await queryPromise('SHOW TABLES;')
+	const tableList = tables.map(x => ({
+		text: String(x[`Tables_in_${DB_DB}`]).capitalizeFirstChar(), 
+		link: `/view/${x[`Tables_in_${DB_DB}`]}`
+	}))
 
 	pageDefaults.navbar = [{
 		text: 'About',
@@ -196,16 +217,34 @@ app.use(
 		if(!req.session.currentUser)
 			req.session.currentUser = await checkForAccount(req.oidc)
 
-		const isAdmin = req.session.currentUser.isAdmin = req.session.meta.min_admin <= req.session.currentUser.role
-		if(isAdmin)
-			pageDefaults.navbar.push({
+		const currentUser = req.session.currentUser
+		const { min_admin } = req.session.meta
+		const { DB_DB } = process.env
+
+		downloadImage(currentUser.picture, `./public/imgs/profiles`, currentUser.guid)
+
+		const isAdmin = currentUser.isAdmin = min_admin <= currentUser.role
+		const tables = await queryPromise('SHOW TABLES;')
+		const tableList = tables.map(x => ({
+			text: String(x[`Tables_in_${DB_DB}`]).capitalizeFirstChar(), 
+			link: `/view/${x[`Tables_in_${DB_DB}`]}`
+		}))
+		if(isAdmin) {
+			pageDefaults.navbar = pageDefaults.navbar.concat([{
 				text: 'Admin',
-				link: '/admin'
-			})
+				links: [{
+					text: 'Admin Center',
+					link: '/admin'
+				}, ...tableList]
+			}])
+		}
 
 		pageDefaults.navbar = pageDefaults.navbar.concat([{
-			text: `<img src="/images/profile/${req.session.currentUser.guid}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
+			text: `<img src="/imgs/profiles/${currentUser.guid || ''}.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 1.5rem;">`,
 			link: '/users/profile/me'
+		},{
+			text: `<i class="fa-solid fa-bell"></i>`,
+			links: notificaitonLinks,
 		},{
 			text: 'My Profile',
 			link: '/users/profile/me'
